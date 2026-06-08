@@ -28,17 +28,18 @@ jobs:
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      - name: Create Web Directory Missing Folders
+      - name: Prepare Clean Web Directory
         run: |
-          mkdir -p android/app/src/main/assets
-          touch android/app/src/main/assets/capacitor.plugins.json
+          mkdir -p www
+          # গিটহাবের অ্যাকশন ফাইল, নোড মডিউল এবং অ্যান্ড্রয়েড ফোল্ডার বাদে বাকি সব কোড www তে সরানো হচ্ছে
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name 'www' ! -name '.git' ! -name '.github' ! -name 'node_modules' ! -name 'android' -exec cp -r {} www/ \;
 
       - name: Initialize Capacitor Config
         run: |
           echo '{
             "appId": "com.mrangrysojib.studybuddy",
             "appName": "Study Buddy",
-            "webDir": ".",
+            "webDir": "www",
             "server": {
               "url": "https://mrangry-sojib.github.io/studybuddy-v3/",
               "allowNavigation": ["mrangry-sojib.github.io"]
@@ -76,4 +77,3 @@ jobs:
         with:
           name: StudyBuddy-App
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          
