@@ -1,0 +1,63 @@
+name: Build Android APK (StudyBuddy)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g @capacitor/cli
+          npm install @capacitor/core @capacitor/android
+
+      - name: Initialize Capacitor Config
+        run: |
+          echo '{
+            "appId": "com.mrangrysojib.studybuddy",
+            "appName": "StudyBuddy",
+            "webDir": ".",
+            "server": {
+              "url": "https://mrangry-sojib.github.io/studybuddy-v3/",
+              "allowNavigation": ["mrangry-sojib.github.io"]
+            }
+          }' > capacitor.config.json
+
+      - name: Add Android Platform
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Setup Android SDK Path
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > android/local.properties
+
+      - name: Build APK with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyBuddy-App
+          path: android/app/build/outputs/apk/debug/app-debug.apk
