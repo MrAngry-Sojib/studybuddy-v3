@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyBuddy Pro - Luxury Dashboard</title>
@@ -555,5 +556,23 @@
             setInterval(runLiveTrackingEngine, 30000);
         };
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => {
+        // এখানে অটো-আপডেট চেক হবে
+        reg.onupdatefound = () => {
+          const installingWorker = reg.installing;
+          installingWorker.onstatechange = () => {
+            if (installingWorker.state === 'installed') {
+              console.log('নতুন আপডেট পাওয়া গেছে! অ্যাপ রিলোড দাও.');
+              window.location.reload(); 
+            }
+          };
+        };
+      });
+  }
+    </script>
+    
 </body>
 </html>
