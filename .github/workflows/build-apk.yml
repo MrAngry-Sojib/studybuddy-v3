@@ -1,4 +1,4 @@
-name: Build Android APK (StudyBuddy)
+name: Build Android APK (Study Buddy)
 
 on:
   push:
@@ -26,14 +26,18 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install -g @capacitor/cli
-          npm install @capacitor/core @capacitor/android
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Create Web Directory Missing Folders
+        run: |
+          mkdir -p android/app/src/main/assets
+          touch android/app/src/main/assets/capacitor.plugins.json
 
       - name: Initialize Capacitor Config
         run: |
           echo '{
             "appId": "com.mrangrysojib.studybuddy",
-            "appName": "StudyBuddy",
+            "appName": "Study Buddy",
             "webDir": ".",
             "server": {
               "url": "https://mrangry-sojib.github.io/studybuddy-v3/",
@@ -41,10 +45,21 @@ jobs:
             }
           }' > capacitor.config.json
 
-      - name: Add Android Platform
+      - name: Add and Sync Android Platform
         run: |
-          npx cap add android
+          npx cap add android || true
           npx cap sync android
+
+      - name: Inject Custom App Logo
+        run: |
+          if [ -f "icon.png" ]; then
+            mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+            cp icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+            cp icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+            echo "Custom logo injected successfully!"
+          else
+            echo "No custom icon.png found, using default Capacitor logo."
+          fi
 
       - name: Setup Android SDK Path
         run: |
@@ -61,3 +76,4 @@ jobs:
         with:
           name: StudyBuddy-App
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          
