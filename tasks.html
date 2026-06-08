@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyBuddy Pro - Daily Quests Engine</title>
-    <!-- আইকনের জন্য FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -89,7 +88,8 @@
 
         .btn-del-task { background: none; border: none; color: #475569; cursor: pointer; font-size: 13px; padding: 4px; }
         .btn-del-task:hover { color: #EF4444; }
-                /* ফ্লোটিং অ্যাড বাটন */
+        
+        /* ফ্লোটিং অ্যাড বাটন */
         .floating-add {
             position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px;
             background: linear-gradient(135deg, #10B981, #059669); color: #080B11;
@@ -118,17 +118,36 @@
         .close-btn { background: none; border: none; color: #64748B; font-size: 18px; cursor: pointer; }
 
         .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+        .input-group label { display: block; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; letter-spacing: 0.5px; }
         .input-field, .select-field { width: 100%; background-color: #090D14; border: 1px solid #1E293B; border-radius: 8px; padding: 10px; font-size: 12px; color: #FFF; outline: none; }
         .input-field:focus, .select-field:focus { border-color: #10B981; }
 
         .btn-save { width: 100%; background: linear-gradient(135deg, #10B981, #059669); color: #080B11; border: none; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
         .no-data { text-align: center; font-size: 11px; color: #64748B; padding: 30px; border: 1px dashed #1E293B; border-radius: 16px; }
+
+        /* [নতুন প্রফেশনাল ফিক্স] কাস্টম নিওন অ্যালার্ট ও কনফার্মেশন মডাল সিএসএস */
+        .custom-alert-backdrop {
+            position: fixed; inset: 0; background: rgba(8, 11, 17, 0.85);
+            backdrop-filter: blur(5px); display: none; align-items: center;
+            justify-content: center; z-index: 9999; padding: 20px;
+        }
+        .custom-alert-card {
+            background: #0D1520; border: 1px solid #1E293B; border-radius: 20px;
+            padding: 24px; max-width: 330px; width: 100%; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+        .custom-alert-card p { font-size: 13px; color: #E2E8F0; font-weight: 700; line-height: 1.6; margin-bottom: 20px; }
+        .alert-btn-group { display: flex; gap: 10px; justify-content: center; }
+        .custom-alert-card button {
+            flex: 1; max-width: 120px; background: linear-gradient(135deg, #10B981, #059669); color: #080B11;
+            border: none; padding: 10px 20px; border-radius: 8px; font-size: 11px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase;
+        }
+        .custom-alert-card .btn-alert-cancel { background: #1A2638; border: 1px solid #20304A; color: #94A3B8; }
     </style>
 </head>
 <body>
 
-    <!-- হেডার বার -->
     <header class="header">
         <button onclick="window.location.href='index.html'" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
         <h1>Daily Quests Backlog</h1>
@@ -136,34 +155,28 @@
 
     <main class="container">
         
-        <!-- কোয়েস্ট প্রোগ্রেস ড্যাশবอร์ด কার্ড -->
         <div class="quest-tracker-card">
             <div class="tracker-headline">
                 <span>Today's Milestones</span>
                 <span id="questCounterLabel" style="color:#10B981;">0 / 3 Done</span>
             </div>
-            <p class="tracker-sub">বোনাস এক্সপি আনলক করতে আজ মিনিমাম ৩টি কোয়েস্ট শেষ করো। অলসতা করলে কিন্তু এক্সপি কেটে নেওয়া হবে!</p>
+            <p class="tracker-sub">বোনাস এক্সপি আনলক করতে আজ মিনিমাপ ৩টি কোয়েস্ট শেষ করো। অলসতা করলে কিন্তু এক্সপি কেটে নেওয়া হবে!</p>
             <div class="quest-bar-bg">
                 <div id="questProgressBar" class="quest-bar-fill"></div>
             </div>
         </div>
 
-        <!-- ডাইনামিক টাস্ক কন্টেইনার লিস্ট -->
         <div id="taskListContainer">
-            <!-- টাস্ক কার্ডস জাভাস্ক্রিপ্ট দিয়ে এখানে ইনজেক্ট হবে -->
-        </div>
+            </div>
 
-        <!-- ফ্লাশ কমপ্লিটেড টাস্ক বাটন -->
         <button class="btn-flush-pane" onclick="clearAllCompletedQuests()">
             Clear Finished Quests <i class="fa-solid fa-fire-burner"></i>
         </button>
 
     </main>
 
-    <!-- ফ্লোটিং অ্যাড কোয়েস্ট বাটন -->
     <button class="floating-add" onclick="openTaskPopup()"><i class="fa-solid fa-plus"></i></button>
 
-    <!-- পপ-আপ মড্যুল ফর্ম -->
     <div id="taskPopup" class="popup-backdrop">
         <div class="popup-card">
             <div class="popup-header">
@@ -189,12 +202,49 @@
             </form>
         </div>
     </div>
+
+    <div id="customAlert" class="custom-alert-backdrop">
+        <div class="custom-alert-card">
+            <p id="customAlertMessage">মেসেজ</p>
+            <div class="alert-btn-group" id="alertBtnGroup">
+                <button onclick="closeCustomAlert()">OK</button>
+            </div>
+        </div>
+    </div>
         <script>
         const userName = localStorage.getItem('profile_name') || "স্টুডেন্ট";
+        let confirmCallback = null; // কনফার্মেশন ট্র্যাকার
 
         window.onload = function() {
             initializeTaskDailySystemAndCheckPunishment();
             renderDailyQuestsList();
+        }
+
+        // কাস্টম অ্যালার্ট ও কনফার্মেশন হ্যান্ডলিং ইঞ্জিন
+        function showCustomAlert(message, isConfirm = false, onConfirm = null) {
+            document.getElementById('customAlertMessage').innerText = message;
+            const btnGroup = document.getElementById('alertBtnGroup');
+            
+            if (isConfirm) {
+                confirmCallback = onConfirm;
+                btnGroup.innerHTML = `
+                    <button class="btn-alert-cancel" onclick="closeCustomAlert()">না</button>
+                    <button onclick="executeConfirmCallback()">হ্যাঁ</button>
+                `;
+            } else {
+                btnGroup.innerHTML = `<button onclick="closeCustomAlert()">OK</button>`;
+            }
+            document.getElementById('customAlert').style.display = 'flex';
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+            confirmCallback = null;
+        }
+
+        function executeConfirmCallback() {
+            if (confirmCallback) confirmCallback();
+            closeCustomAlert();
         }
 
         function openTaskPopup() { document.getElementById('taskPopup').classList.add('popup-active'); }
@@ -207,29 +257,22 @@
         function initializeTaskDailySystemAndCheckPunishment() {
             const todayStr = new Date().toDateString();
             
-            // নতুন দিন শুরু হয়েছে কি না চেক
             if (localStorage.getItem('task_system_date_string') !== todayStr) {
-                
-                // [কঠোর পানিশমেন্ট চেক] যদি গতকাল কোনো টাস্ক অ্যাড না করে থাকে অথবা একটাও কমপ্লিট না করে থাকে
                 if (localStorage.getItem('task_system_date_string')) {
                     const yesterdayTotal = parseInt(localStorage.getItem('yesterday_added_count')) || 0;
                     const yesterdayDone = parseInt(localStorage.getItem('yesterday_completed_count')) || 0;
                     
                     if (yesterdayTotal === 0 || yesterdayDone === 0) {
-                        // অলসতার জন্য এক্সপি মাইনাস ১৫
                         let currentXp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
-                        currentXp = Math.max(0, currentXp - 15); // ০ এর নিচে নামবে না
+                        currentXp = Math.max(0, currentXp - 15);
                         localStorage.setItem('global_vault_xp', currentXp.toString());
                         
-                        alert(`⚠️ অলসতা অ্যালার্ট, ${userName}!\n\nতুমি গতকাল কোনো টাস্ক অ্যাড করোনি অথবা অ্যাড করলেও একটি কাজও শেষ করোনি। এই অবহেলার জন্য তোমার গ্লোবাল ব্যাংক থেকে ১৫ এক্সপি (XP) কেটে নেওয়া হলো। আজ দায়িত্বশীল হও!`);
+                        // ব্রাউজার অ্যালার্টের জায়গায় কাস্টম নিওন অ্যালার্ট
+                        showCustomAlert(`⚠️ অলসতা অ্যালার্ট, ${userName}!\n\nতুমি গতকাল কোনো টাস্ক অ্যাড করোনি অথবা অ্যাড করলেও একটি কাজও শেষ করোনি। এই অবহেলার জন্য তোমার গ্লোবাল ব্যাংক থেকে ১৫ এক্সপি (XP) কেটে নেওয়া হলো। আজ দায়িত্বশীল হও!`);
                     }
                 }
-
-                // নতুন দিনের মেমোরি স্লট সেটআপ ও ব্যাকআপ ক্যাশ জিরো করা
                 localStorage.setItem('task_system_date_string', todayStr);
                 localStorage.setItem('today_bonus_claimed', 'false');
-                
-                // বর্তমানের রানিং টাস্কগুলোকে গতকালের ট্র্যাকিংয়ে ব্যাকআপ নিয়ে নেওয়া
                 syncYesterdayMetrics();
             }
         }
@@ -241,36 +284,31 @@
             localStorage.setItem('yesterday_completed_count', doneCount.toString());
         }
 
-        // কোয়েস্ট লিস্ট জেনারেটর এবং হোম স্ক্রিন সিঙ্ক ইঞ্জিন
         function renderDailyQuestsList() {
             const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
             const container = document.getElementById('taskListContainer');
             container.innerHTML = '';
 
-            // আজকের কমপ্লিটেড এবং পেন্ডিং টাস্কের হিসাব
             const completedCount = taskList.filter(t => t.completed).length;
-            const pendingCount = taskList.length - completedCount;
-
-            // [হোম স্ক্রিন এলার্ট সিঙ্ক] হোম পেজের liveTaskCard রিড করার জন্য মেমোরি আপডেট
             localStorage.setItem('student_tasks', JSON.stringify(taskList)); 
 
-            // ড্যাশবোর্ড বার এবং কাউন্টার আপডেট
             document.getElementById('questCounterLabel').innerText = `${completedCount} / 3 Done`;
-            // প্রোগ্রেস বার ৩টি টাস্কের ওপর ভিত্তি করে সর্বোচ্চ ১০০% লোড হবে
             const progressPercent = Math.min(100, (completedCount / 3) * 100);
             document.getElementById('questProgressBar').style.width = `${progressPercent}%`;
 
-            // [৩-টাস্ক রিওয়ার্ড লক] ৩টি টাস্ক কমপ্লিট হলে এককালীন +২০ এক্সপি ডেইলি বোনাস
+            // ৩-টাস্ক রিওয়ার্ড লক
             if (completedCount >= 3 && localStorage.getItem('today_bonus_claimed') !== 'true') {
                 localStorage.setItem('today_bonus_claimed', 'true');
                 let currentXp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
-                currentXp += 20; // ২০ এক্সপি ডেইলি বোনাস
+                currentXp += 20; 
                 localStorage.setItem('global_vault_xp', currentXp.toString());
-                alert(`🎉 অসাধারণ কাজ করেছ, ${userName}!\n\nতুমি আজকের দিনের মিনিмум ৩টি ডেইলি কোয়েস্ট সফলভাবে কমপ্লিট করেছ। পুরস্কার হিসেবে তোমার গ্লোবাল ব্যাংকে এককালীন +20 XP বোনাস যোগ করা হলো!`);
+                
+                // ব্রাউজার অ্যালার্টের জায়গায় কাস্টম নিওন অ্যালার্ট
+                showCustomAlert(`🎉 অসাধারণ কাজ করেছ, ${userName}!\n\nতুমি আজকের দিনের মিনিмум ৩টি ডেইলি কোয়েস্ট সফলভাবে কমপ্লিট করেছ। পুরস্কার হিসেবে তোমার গ্লোবাল ব্যাংকে এককালীন +20 XP বোনাস যোগ করা হলো!`);
             }
 
             if (taskList.length === 0) {
-                container.innerHTML = `<div class="no-data">আজকের কোনো কোয়েস্ট কার্ড বাকি নেই, ${userName}! নতুন টাস্ক যোগ করতে নিচের প্লাস আইকনে চাপ দাও।</div>`;
+                container.innerHTML = `<div class="no-data">আজকের কোনো কোয়েস্টカード বাকি নেই, ${userName}! নতুন টাস্ক যোগ করতে নিচের প্লাস আইকনে চাপ দাও।</div>`;
                 return;
             }
 
@@ -293,35 +331,27 @@
                 container.innerHTML += itemHtml;
             });
 
-            // দিন শেষ হওয়ার আগে সেভড ব্যাকআপ সিঙ্ক আপডেট রাখা
             syncYesterdayMetrics();
         }
 
-        // নতুন টাস্ক কার্ড যোগ করা
         function createNewDailyQuest(event) {
             event.preventDefault();
-
             const text = document.getElementById('tkName').value.trim();
             const priority = document.getElementById('tkPriority').value;
-
             const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
             taskList.push({ text, priority, completed: false });
-
             localStorage.setItem('student_tasks', JSON.stringify(taskList));
             closeTaskPopup();
             renderDailyQuestsList();
         }
 
-        // টাস্ক চেক আনচেক ইঞ্জিন
         function toggleQuestCompleteStatus(index) {
             const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
             taskList[index].completed = !taskList[index].completed;
-            
             localStorage.setItem('student_tasks', JSON.stringify(taskList));
             renderDailyQuestsList();
         }
 
-        // সিঙ্গল কোয়েস্ট ডিলিট
         function deleteSingleQuest(index) {
             const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
             taskList.splice(index, 1);
@@ -329,20 +359,21 @@
             renderDailyQuestsList();
         }
 
-        // কাজ শেষ হয়ে যাওয়া ট্র্যাশ নোটগুলো এক ক্লিকে পরিষ্কার করা
         function clearAllCompletedQuests() {
             const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
             const remainingTasks = taskList.filter(task => !task.completed);
             
             if (taskList.length === remainingTasks.length) {
-                alert("পরিষ্কার করার মতো কোনো কমপ্লিটেড কোয়েস্ট লিস্টে নেই!");
+                // ব্রাউজার অ্যালার্টের জায়গায় কাস্টম নিওন অ্যালার্ট
+                showCustomAlert("পরিষ্কার করার মতো কোনো কমপ্লিটেড কোয়েস্ট লিস্টে নেই!");
                 return;
             }
 
-            if (confirm("তুমি কি শেষ হয়ে যাওয়া সব কাজগুলো মেমোরি থেকে ফ্লাশ করে দিতে চাও?")) {
+            // ব্রাউজার কনফার্মেশনের জায়গায় কাস্টম নিওন কনফার্ম ডায়ালগ
+            showCustomAlert("তুমি কি শেষ হয়ে যাওয়া সব কাজগুলো মেমোরি থেকে ফ্লাশ করে দিতে চাও?", true, function() {
                 localStorage.setItem('student_tasks', JSON.stringify(remainingTasks));
                 renderDailyQuestsList();
-            }
+            });
         }
     </script>
 </body>
