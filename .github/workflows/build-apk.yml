@@ -18,23 +18,27 @@ jobs:
         with:
           node-version: 20
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
-      - name: Install Dependencies
+      - name: Install Capacitor CLI and Core
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core @capacitor/cli
 
-      - name: Prepare Clean Web Directory
+      - name: Create Structure and Config
         run: |
           mkdir -p www
-          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name 'www' ! -name '.git' ! -name '.github' ! -name 'node_modules' ! -name 'android' -exec cp -r {} www/ \;
-
-      - name: Initialize Capacitor Config
-        run: |
+          # index.html আছে কি না তা নিশ্চিত করে ব্যাকআপ ফাইল তৈরি করা
+          if [ -f "index.html" ]; then
+            cp index.html www/
+          fi
+          # বাকি ফাইলগুলো কপি করার নিরাপদ কমান্ড
+          cp -r *.js *.css *.json www/ 2>/dev/null || true
+          
+          # ক্যাপাসিটর কনফিগ তৈরি
           echo '{
             "appId": "com.mrangrysojib.studybuddy",
             "appName": "Study Buddy",
@@ -45,8 +49,9 @@ jobs:
             }
           }' > capacitor.config.json
 
-      - name: Add and Sync Android Platform
+      - name: Install Android Platform and Sync
         run: |
+          npm install @capacitor/android
           npx cap add android || true
           npx cap sync android
 
@@ -58,7 +63,7 @@ jobs:
             cp icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
             echo "Custom logo injected successfully!"
           else
-            echo "No custom icon.png found, using default Capacitor logo."
+            echo "No custom icon.png found."
           fi
 
       - name: Setup Android SDK Path
