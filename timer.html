@@ -98,7 +98,7 @@
         }
 
         @keyframes alertPulse { 0% { border-color: #1E293B; } 100% { border-color: #F59E0B; } }
-                .time-tuner-row { display: flex; align-items: center; gap: 14px; margin-top: -5px; }
+        .time-tuner-row { display: flex; align-items: center; gap: 14px; margin-top: -5px; }
         .btn-tune {
             background-color: #1A2638; border: 1px solid #20304A; color: #94A3B8;
             width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: bold;
@@ -116,7 +116,6 @@
         .btn-break { background: linear-gradient(135deg, #F59E0B, #D97706); color: #080B11; }
         .btn-stop { background: linear-gradient(135deg, #A855F7, #7E22CE); color: #FFF; }
 
-        /* ওভারটাইম বোনাস ব্যানার ট্র্যাকার */
         .overtime-banner {
             background: rgba(168, 85, 247, 0.06);
             border: 1px dashed rgba(168, 85, 247, 0.3);
@@ -133,6 +132,26 @@
         .reward-icon { width: 36px; height: 36px; background-color: rgba(168, 85, 247, 0.1); color: #A855F7; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
         .reward-meta h4 { font-size: 11px; font-weight: 700; color: #FFF; }
         .reward-meta p { font-size: 9px; color: #64748B; margin-top: 2px; line-height: 1.4; }
+
+        /* [কাস্টম প্রফেশনাল ফিক্স] ওটিএ প্রোটেক্টেড নিওন অ্যালার্ট ও কনফার্মেশন মডাল সিএসএস */
+        .custom-alert-backdrop {
+            position: fixed; inset: 0; background: rgba(8, 11, 17, 0.85);
+            backdrop-filter: blur(5px); display: none; align-items: center;
+            justify-content: center; z-index: 9999; padding: 20px;
+        }
+        .custom-alert-card {
+            background: #0D1520; border: 1px solid #1E293B; border-radius: 20px;
+            padding: 24px; max-width: 330px; width: 100%; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+        .custom-alert-card p { font-size: 13px; color: #E2E8F0; font-weight: 700; line-height: 1.6; margin-bottom: 20px; }
+        .alert-btn-group { display: flex; gap: 10px; justify-content: center; }
+        .custom-alert-card button {
+            flex: 1; max-width: 120px; background: linear-gradient(135deg, #38BDF8, #2563EB); color: #080B11;
+            border: none; padding: 10px 20px; border-radius: 8px; font-size: 11px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase;
+        }
+        .custom-alert-card .btn-alert-cancel { background: #1A2638; border: 1px solid #20304A; color: #94A3B8; }
     </style>
 </head>
 <body>
@@ -195,10 +214,21 @@
         </div>
 
     </main>
+
+    <div id="customAlert" class="custom-alert-backdrop">
+        <div class="custom-alert-card">
+            <p id="customAlertMessage">মেসেজ</p>
+            <div class="alert-btn-group" id="alertBtnGroup">
+                <button onclick="closeCustomAlert()">OK</button>
+            </div>
+        </div>
+    </div>
         <script>
+        const userName = localStorage.getItem('profile_name') || "স্টুডেন্ট";
         let timerInterval = null;
         let isTimerRunning = false;
         let currentMode = "FOCUS"; // FOCUS, BREAK_ALERT, OVERTIME
+        let confirmCallback = null; // কাস্টম কনফার্মেশন ট্র্যাকার
         
         let targetMinutes = 30; 
         let timeRemaining = targetMinutes * 60;
@@ -213,30 +243,54 @@
             setupBackgroundSyncRecovery();
         }
 
+        // কাস্টম নিওন অ্যালার্ট ও কনফার্মেশন কন্ট্রোল সিস্টেম
+        function showCustomAlert(message, isConfirm = false, onConfirm = null) {
+            document.getElementById('customAlertMessage').innerText = message;
+            const btnGroup = document.getElementById('alertBtnGroup');
+            
+            if (isConfirm) {
+                confirmCallback = onConfirm;
+                btnGroup.innerHTML = `
+                    <button class="btn-alert-cancel" onclick="closeCustomAlert()">না</button>
+                    <button onclick="executeConfirmCallback()">হ্যাঁ</button>
+                `;
+            } else {
+                btnGroup.innerHTML = `<button onclick="closeCustomAlert()">OK</button>`;
+            }
+            document.getElementById('customAlert').style.display = 'flex';
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+            confirmCallback = null;
+        }
+
+        function executeConfirmCallback() {
+            if (confirmCallback) confirmCallback();
+            closeCustomAlert();
+        }
+
         // [ইন্টেলিজেন্ট উইকএন্ড নো-পানিশমেন্ট ট্র্যাকার]
         function initializeDailyDataAndCheckPunishment() {
             const now = new Date();
             const todayStr = now.toDateString();
-            const dayName = now.getDay(); // ০=রবিবার, ৪=বৃহস্পতিবার, ৫=শুক্রবার, ৬=শনিবার
+            const dayName = now.getDay();
 
             if (localStorage.getItem('today_date_string') !== todayStr) {
                 if (localStorage.getItem('today_date_string')) {
                     const yesterdaySecs = parseInt(localStorage.getItem('today_study_seconds')) || 0;
                     
-                    // আজ যদি শুক্রবার (৫) বা শনিবার (৬) হয়, তার মানে গতকাল যথাক্রমে বৃহস্পতিবার বা শুক্রবার ছিল।
                     const isYesterdayFriday = (dayName === 6); 
                     const isYesterdayThursday = (dayName === 5);
 
-                    // বৃহস্পতিবার ও শুক্রবার বাদে বাকি দিনগুলোতে ৩০ মিনিটের কম পড়লে এক্সপি কাটা হবে
                     if (yesterdaySecs < 30 * 60) {
                         if (isYesterdayThursday || isYesterdayFriday) {
-                            // ছুটির দিন হওয়ায় কোনো অ্যাকশন বা শাস্তি হবে না
                             console.log("গতকাল ছুটি/বৃহস্পতিবার ছিল। কোনো এক্সপি কাটা হয়নি।");
                         } else {
                             let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
                             xp = Math.max(0, xp - 10); 
                             localStorage.setItem('global_vault_xp', xp.toString());
-                            alert("⚠️ পানিশমেন্ট এলার্ট, সজিব!\n\nগতকাল তুমি মিনিмум ৩০ মিনিট পড়াশোনা করোনি। এই অবহেলার কারণে তোমার গ্লোবাল ব্যাংক থেকে ১০ এক্সপি (XP) কেটে নেওয়া হলো। (মনে রেখো: বৃহস্পতিবার ও শুক্রবার কোনো এক্সপি কাটা হয় না)।");
+                            showCustomAlert(`⚠️ পানিশমেন্ট এলার্ট, ${userName}!\n\nগতকাল তুমি মিনিмум ৩০ মিনিট পড়াশোনা করোনি। এই অবহেলার কারণে তোমার গ্লোবাল ব্যাংক থেকে ১০ এক্সপি (XP) কেটে নেওয়া হলো। (মনে রেখো: বৃহস্পতিবার ও শুক্রবার কোনো এক্সপি কাটা হয় না)।`);
                         }
                     }
                 }
@@ -268,7 +322,7 @@
         function tuneTimeTarget(amount) {
             if (isTimerRunning || currentMode !== "FOCUS") return;
             let newTarget = targetMinutes + amount;
-            if (newTarget < 30) { alert("মিনিমাম ৩০ মিনিট পড়তেই হবে, এর কম কমানো সম্ভব নয়!"); return; }
+            if (newTarget < 30) { showCustomAlert("মিনিমাম ৩০ মিনিট পড়তেই হবে, এর কম কমানো সম্ভব নয়!"); return; }
             targetMinutes = newTarget;
             timeRemaining = targetMinutes * 60;
             resetTimerUiToMode();
@@ -313,7 +367,7 @@
                     document.getElementById('timeDisplay').innerText = `${oMin.toString().padStart(2,'0')}:${oSec.toString().padStart(2,'0')}`;
                     
                     document.getElementById('otTimeLabel').innerText = `${oMin}m ${oSec}s`;
-                    const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; // [আপডেট] প্রতি ১০ মিনিটে ৫ এক্সপি বোনাস
+                    const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; 
                     document.getElementById('otXpLabel').innerText = `+${bonusXp} XP`;
                 }
             }, 1000);
@@ -330,13 +384,12 @@
             localStorage.setItem('lifetime_study_seconds', totalSecs.toString());
             localStorage.setItem('cumulative_xp_pool_seconds', cumulativeXpPool.toString());
 
-            // [আপডেট] প্রতি ৩০ মিনিট পড়াশোনা পুলে জমা হলেই সলিড ১০ এক্সপি রিওয়ার্ড
             if (cumulativeXpPool >= 30 * 60) {
                 let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
                 xp += 10; 
                 localStorage.setItem('global_vault_xp', xp.toString());
                 localStorage.setItem('cumulative_xp_pool_seconds', (cumulativeXpPool - 1800).toString());
-                alert("🎁 অসাধারণ পড়াশোনা, সজিব! ৩০ মিনিট পড়ার মাইলস্টোন ছুয়েছ। ভল্ট ব্যাংকে +10 XP ক্রেডিট করা হলো!");
+                showCustomAlert(`🎁 অসাধারণ পড়াশোনা, ${userName}! ৩০ মিনিট পড়ার মাইলস্টোন ছুয়েছ। ভল্ট ব্যাংকে +10 XP ক্রেডিট করা হলো!`);
             }
             updateLiveDashboardStats();
         }
@@ -391,7 +444,7 @@
             clearInterval(timerInterval);
             isTimerRunning = false;
             
-            const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; // ১০ মিনিটে ৫ এক্সপি বোনাস
+            const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; 
             if (bonusXp > 0) {
                 let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
                 xp += bonusXp;
@@ -399,7 +452,7 @@
             }
 
             const totalOtMins = Math.floor(overtimeSecondsCounter / 60);
-            alert(`🔥 মেগা সাকসেস সজিব!\n\nতুমি ব্রেক না নিয়ে অতিরিক্ত ${totalOtMins} মিনিট গভীর পড়াশোনা করেছ।\n🎁 পুরস্কার হিসেবে ভল্ট ব্যাংকে অতিরিক্ত +${bonusXp} XP বোনাস দেওয়া হলো!`);
+            showCustomAlert(`🔥 মেগা সাকসেস!\n\nতুমি ব্রেক না নিয়ে অতিরিক্ত ${totalOtMins} মিনিট গভীর পড়াশোনা করেছ।\n🎁 পুরস্কার হিসেবে ভল্ট ব্যাংকে অতিরিক্ত +${bonusXp} XP বোনাস দেওয়া হলো!`);
             
             currentMode = "FOCUS";
             targetMinutes = 30;
@@ -457,11 +510,12 @@
 
         function navigateBackToHome() {
             if (isTimerRunning) {
-                if (confirm("টাইমার চলছে! ফিরে গেলে প্রোগ্রেস পজ হবে। হোমে যাবে?")) {
+                // ব্রাউজার কনফার্মেশনের জায়গায় কাস্টম নিওন কনফার্ম ডায়ালগ
+                showCustomAlert("টাইমার চলছে! ফিরে গেলে প্রোগ্রেস পজ হবে। হোমে যাবে?", true, function() {
                     clearInterval(timerInterval);
                     localStorage.removeItem('timer_background_exit_timestamp');
                     window.location.href = "index.html";
-                }
+                });
             } else { window.location.href = "index.html"; }
         }
     </script>
