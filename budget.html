@@ -104,7 +104,8 @@
         .stat-val { font-size: 15px; font-weight: 700; font-family: monospace; margin-top: 4px; }
         .inc-val { color: #06B6D4; }
         .exp-val { color: #EF4444; }
-                /* কুইক অ্যাকশন বাটন */
+
+        /* কুইক অ্যাকশন বাটন */
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -201,12 +202,32 @@
         .delete-entry-btn { background: none; border: none; color: #334155; font-size: 12px; cursor: pointer; padding: 4px; }
         .delete-entry-btn:hover { color: #EF4444; }
         .empty-state { text-align: center; padding: 30px 10px; color: #475569; font-size: 11px; font-style: italic; }
+
+        /* [কাস্টম প্রফেশনাল ফিক্স] ওটিএ প্রোটেক্টেড নিওন অ্যালার্ট ও কনফার্মেশন মডাল সিএসএস */
+        .custom-alert-backdrop {
+            position: fixed; inset: 0; background: rgba(8, 11, 17, 0.85);
+            backdrop-filter: blur(5px); display: none; align-items: center;
+            justify-content: center; z-index: 9999; padding: 20px;
+        }
+        .custom-alert-card {
+            background: #0D1520; border: 1px solid #1E293B; border-radius: 20px;
+            padding: 24px; max-width: 330px; width: 100%; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+        .custom-alert-card p { font-size: 13px; color: #E2E8F0; font-weight: 700; line-height: 1.6; margin-bottom: 20px; }
+        .alert-btn-group { display: flex; gap: 10px; justify-content: center; }
+        .custom-alert-card button {
+            flex: 1; max-width: 120px; background: linear-gradient(135deg, #38BDF8, #2563EB); color: #080B11;
+            border: none; padding: 10px 20px; border-radius: 8px; font-size: 11px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase;
+        }
+        .custom-alert-card .btn-alert-cancel { background: #1A2638; border: 1px solid #20304A; color: #94A3B8; }
     </style>
 </head>
 <body>
 
     <header class="header">
-        <button onclick="window.location.href='index.html'" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+        <button onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i></button>
         <h1>Wallet Tracker</h1>
     </header>
 
@@ -279,7 +300,8 @@
             </form>
         </div>
     </div>
-        <!-- পপ-আপ ২: আলাদা ডেডিকেটেড স্টেটমেন্ট হিস্ট্রি উইন্ডো -->
+
+    <!-- পপ-আপ ২: আলাদা ডেডিকেটেড স্টেটমেন্ট হিস্ট্রি উইন্ডো -->
     <div id="historyModal" class="popup-backdrop">
         <div class="popup-card" style="max-width: 380px;">
             <div class="popup-header">
@@ -292,16 +314,25 @@
         </div>
     </div>
 
-    <script>
+    <!-- [নতুন ইঞ্জিন] গ্লোবাল কাস্টম নিওন অ্যালার্ট ও কনফার্মেশন ডায়ালগ স্ট্রাকচার -->
+    <div id="customAlert" class="custom-alert-backdrop">
+        <div class="custom-alert-card">
+            <p id="customAlertMessage">মেসেজ</p>
+            <div class="alert-btn-group" id="alertBtnGroup">
+                <button onclick="closeCustomAlert()">OK</button>
+            </div>
+        </div>
+    </div>
+        <script>
         let budgetHistory = [];
         let currentModalType = 'INCOME';
+        let confirmCallback = null; // কাস্টম কনফার্মেশন ট্র্যাকার
 
         const incomeCategories = ["Allowance (বাসা থেকে)", "Tuition (টিউনিশন)", "Gift", "Others"];
         const expenseCategories = ["Food & Snacks", "Conveyance (যাতায়াত)", "Books & Stationery", "Mobile Recharge", "Mess/Rent", "Others"];
         const monthsNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         window.onload = function() {
-            // ডায়নামিক নেম সিঙ্ক (ডামি বা ফিক্সড নাম থাকবে না)
             const savedName = localStorage.getItem('profile_name') || localStorage.getItem('username');
             const userDisplay = document.getElementById('walletUserDisplay');
             if (savedName && savedName.trim() !== "") {
@@ -316,7 +347,33 @@
             calculateAndRenderWallet();
         }
 
-        // হিস্ট্রির ওপর ভিত্তি করে ডাইনামিক মাস ও বছরের ড্রপডাউন জেনারেটর
+        // কাস্টম নিওন অ্যালার্ট ও কনফার্মেশন কন্ট্রোল সিস্টেম
+        function showCustomAlert(message, isConfirm = false, onConfirm = null) {
+            document.getElementById('customAlertMessage').innerText = message;
+            const btnGroup = document.getElementById('alertBtnGroup');
+            
+            if (isConfirm) {
+                confirmCallback = onConfirm;
+                btnGroup.innerHTML = `
+                    <button class="btn-alert-cancel" onclick="closeCustomAlert()">না</button>
+                    <button onclick="executeConfirmCallback()">হ্যাঁ</button>
+                `;
+            } else {
+                btnGroup.innerHTML = `<button onclick="closeCustomAlert()">OK</button>`;
+            }
+            document.getElementById('customAlert').style.display = 'flex';
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+            confirmCallback = null;
+        }
+
+        function executeConfirmCallback() {
+            if (confirmCallback) confirmCallback();
+            closeCustomAlert();
+        }
+
         function buildMonthFilterDropdown() {
             const select = document.getElementById('monthFilterSelect');
             select.innerHTML = '';
@@ -324,17 +381,15 @@
             const now = new Date();
             const currentMonthYearKey = `${monthsNames[now.getMonth()]} ${now.getFullYear()}`;
             
-            // ইউনিক মাসগুলোর সেট তৈরি
             let activeMonths = new Set();
-            activeMonths.add(currentMonthYearKey); // কারেন্ট মাস সবসময় থাকবে
+            activeMonths.add(currentMonthYearKey);
             
             budgetHistory.forEach(item => { if(item.monthYearKey) activeMonths.add(item.monthYearKey); });
             
-            // ড্রপডাউনে ইনজেক্ট করা
             activeMonths.forEach(m => {
                 select.innerHTML += `<option value="${m}">${m}</option>`;
             });
-            select.value = currentMonthYearKey; // ডিফল্ট কারেন্ট মাস ফোকাসড
+            select.value = currentMonthYearKey;
         }
 
         function openBudgetModal(type) {
@@ -380,11 +435,11 @@
             const now = new Date();
             const monthYearKey = `${monthsNames[now.getMonth()]} ${now.getFullYear()}`;
             
-            // নেট এভেলেবল ব্যালেন্স সেফটি চেক
             if (currentModalType === 'EXPENSE') {
                 const globalTotals = computeGlobalNetBalance();
                 if (amount > globalTotals.net) {
-                    alert("দুঃখিত সজিব, তোমার টোটাল ব্যালেন্সে পর্যাপ্ত টাকা নেই!");
+                    // ব্রাউজার অ্যালার্টের জায়গায় কাস্টম নিওন অ্যালার্ট
+                    showCustomAlert("দুঃখিত সজিব, তোমার টোটাল ব্যালেন্সে পর্যাপ্ত টাকা নেই!");
                     return;
                 }
             }
@@ -408,7 +463,6 @@
             budgetHistory.unshift(newEntry);
             localStorage.setItem('pocket_budget_history', JSON.stringify(budgetHistory));
             
-            // যদি নতুন মাসের এন্ট্রি হয় তবে ড্রপডাউন রি-বিল্ড করা
             buildMonthFilterDropdown();
             calculateAndRenderWallet();
             closeBudgetModal();
@@ -423,7 +477,6 @@
             return { net: (totalInc - totalExp) };
         }
 
-        // কোর মাসিক ক্যালকুলেশন ও রেন্ডার ইঞ্জিন
         function calculateAndRenderWallet() {
             const globalNet = computeGlobalNetBalance();
             document.getElementById('balanceDisplay').innerText = `৳ ${globalNet.net.toLocaleString()}`;
@@ -431,7 +484,6 @@
             const selectedMonthYear = document.getElementById('monthFilterSelect').value;
             let monthInc = 0; let monthExp = 0;
 
-            // শুধুমাত্র সিলেক্টেড মাসের ডাটা লুপ করা হচ্ছে
             budgetHistory.forEach(item => {
                 if (item.monthYearKey === selectedMonthYear) {
                     if (item.type === 'INCOME') monthInc += item.amount;
@@ -442,13 +494,11 @@
             document.getElementById('monthIncomeDisplay').innerText = `৳ ${monthInc.toLocaleString()}`;
             document.getElementById('monthExpenseDisplay').innerText = `৳ ${monthExp.toLocaleString()}`;
             
-            // যদি হিস্ট্রি মড্যাল ওপেন থাকে তবে রিয়েল টাইমে ওটাও আপডেট হবে
             if(document.getElementById('historyModal').classList.contains('popup-active')) {
                 renderHistoryLedgerOnly();
             }
         }
 
-        // ডেডিকেটেড হিস্ট্রি ভিউয়ার
         function renderHistoryLedgerOnly() {
             const container = document.getElementById('historyContainer');
             container.innerHTML = '';
@@ -485,12 +535,13 @@
         }
 
         function deleteBudgetEntry(id) {
-            if (confirm("এই হিসাবটি ডিলিট করতে নিশ্চিত? ব্যালেন্স অটো-রিসেট হয়ে যাবে।")) {
+            // ব্রাউজার কনফার্মেশনের জায়গায় কাস্টম নিওন কনফার্ম ডায়ালগ
+            showCustomAlert("এই হিসাবটি ডিলিট করতে নিশ্চিত? ব্যালেন্স অটো-রিসেট হয়ে যাবে।", true, function() {
                 budgetHistory = budgetHistory.filter(item => item.id !== id);
                 localStorage.setItem('pocket_budget_history', JSON.stringify(budgetHistory));
                 buildMonthFilterDropdown();
                 calculateAndRenderWallet();
-            }
+            });
         }
     </script>
 </body>
