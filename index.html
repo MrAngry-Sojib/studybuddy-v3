@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy Pro - Luxury Dashboard</title>
+    <!-- আইকনের জন্য FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            padding-bottom: 40px;
+        }
+
+        /* হেডার ও থ্রি-লাইন মেনু পজিশন */
+        .header {
+            background-color: #0D1520;
+            border-bottom: 1px solid #1E293B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .header h1 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #38BDF8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pro-badge {
+            font-size: 9px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+        .clock-badge {
+            background-color: rgba(56, 189, 248, 0.05);
+            border: 1px solid #1E293B;
+            color: #38BDF8;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #94A3B8;
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .menu-btn:active { color: #38BDF8; }
+
+        /* ডাইনামিক ড্রপডাউন মেনু বক্স */
+        .dropdown-menu {
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 12px;
+            width: 160px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 200;
+            overflow: hidden;
+        }
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            color: #94A3B8;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .dropdown-menu a:hover, .dropdown-menu a:active {
+            background-color: rgba(56, 189, 248, 0.08);
+            color: #38BDF8;
+        }
+        .menu-line-break { border-top: 1px solid rgba(30, 41, 59, 0.5); }
+        .show-menu { display: block !important; }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        .date-bar {
+            background-color: rgba(13, 21, 32, 0.5);
+            border: 1px solid #1E293B;
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .date-bar .day { color: #38BDF8; }
+        .date-bar .date { color: #64748B; font-family: monospace; }
+
+        /* আল্ট্রা প্রিমিয়াম প্রোফাইলカード */
+        .profile-card {
+            background: linear-gradient(135deg, #0F172A, #0D1520);
+            border: 1px solid #1E293B;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: -40px;
+            width: 100px;
+            height: 100px;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 50%;
+            filter: blur(25px);
+            pointer-events: none;
+        }
+        .profile-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .avatar {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .user-details h2 { font-size: 16px; font-weight: 800; color: #FFF; letter-spacing: 0.3px; }
+        .user-details p { font-size: 11px; color: #94A3B8; margin-top: 3px; font-weight: 500; }
+        .meta-tags {
+            display: flex;
+            gap: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748B;
+            margin-top: 6px;
+        }
+        .meta-tags span span { color: #38BDF8; }
+        .level-badge {
+            font-size: 10px;
+            color: #F59E0B;
+            font-weight: 700;
+            margin-top: 8px;
+            display: inline-block;
+            background-color: rgba(245, 158, 11, 0.08);
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.15);
+        }
+                /* মেমোরি স্ট্যাটাস গ্রিড (Focus Time & XP) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top: 1px solid rgba(30, 41, 59, 0.4);
+            padding-top: 14px;
+        }
+        .stat-box {
+            background-color: rgba(9, 13, 20, 0.5);
+            border: 1px solid rgba(30, 41, 59, 0.3);
+            padding: 10px 8px;
+            border-radius: 14px;
+            text-align: center;
+        }
+        .stat-box span { font-size: 8px; font-weight: 700; color: #64748B; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-box p { font-size: 13px; font-weight: 800; margin-top: 4px; }
+
+        /* ডাইনামিক লাইভ কার্ড ডিজাইন */
+        .live-card {
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulseGlow 2s infinite alternate;
+        }
+        .live-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .live-info h4 { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .live-info h3 { font-size: 13px; font-weight: 700; color: #FFF; margin-top: 2px; }
+        .live-info p { font-size: 11px; color: #94A3B8; margin-top: 2px; }
+
+        /* স্পেসিফিক লাইভ থিম */
+        .bg-running-class { background-color: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .bg-running-class .live-icon { background-color: rgba(16, 185, 129, 0.15); color: #10B981; }
+        .bg-running-class h4 { color: #10B981; }
+
+        .bg-exam-alert { background-color: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .bg-exam-alert .live-icon { background-color: rgba(239, 68, 68, 0.15); color: #EF4444; }
+        .bg-exam-alert h4 { color: #EF4444; }
+
+        .bg-task-reminder { background-color: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2); }
+        .bg-task-reminder .live-icon { background-color: rgba(6, 182, 212, 0.15); color: #06B6D4; }
+        .bg-task-reminder h4 { color: #06B6D4; }
+
+        /* অ্যাপ্লিকেশন ওয়ার্কস্পেস গ্রিড */
+        .section-title {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748B;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            padding-left: 2px;
+        }
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .widget-card {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 96px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .widget-card:active { transform: scale(0.96); }
+        .widget-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .widget-card h3 { font-size: 12px; font-weight: 700; color: #E2E8F0; margin-top: auto; }
+        .widget-card p { font-size: 9px; color: #64748B; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* উইজেট কালার থিম */
+        .w-routine { border-left: 3px solid #38BDF8; } .w-routine .widget-icon { background: rgba(56,189,248,0.1); color: #38BDF8; }
+        .w-exam { border-left: 3px solid #EF4444; } .w-exam .widget-icon { background: rgba(239,68,68,0.1); color: #EF4444; }
+        .w-timer { border-left: 3px solid #F59E0B; } .w-timer .widget-icon { background: rgba(245,158,11,0.1); color: #F59E0B; }
+        .w-tasks { border-left: 3px solid #10B981; } .w-tasks .widget-icon { background: rgba(16,185,129,0.1); color: #10B981; }
+        .w-budget { border-left: 3px solid #A855F7; } .w-budget .widget-icon { background: rgba(168,85,247,0.1); color: #A855F7; }
+        .w-vault { border-left: 3px solid #06B6D4; } .w-vault .widget-icon { background: rgba(6,182,212,0.1); color: #06B6D4; }
+
+        .wisdom-box {
+            background-color: rgba(56, 189, 248, 0.03);
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            padding: 12px;
+            border-radius: 14px;
+            text-align: center;
+            font-size: 10px;
+            color: #38BDF8;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        .hidden-card { display: none !important; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px rgba(255,255,255,0.02); } 100% { box-shadow: 0 0 15px rgba(255,255,255,0.05); } }
+    </style>
+</head>
+<body>
+
+    <!-- টপ হেডার বার -->
+    <header class="header">
+        <h1><i class="fa-solid fa-graduation-cap"></i> StudyBuddy <span class="pro-badge">PRO</span></h1>
+        <div class="header-right">
+            <div id="liveClock" class="clock-badge">00:00:00 AM</div>
+            <button onclick="toggleDropdownMenu(event)" class="menu-btn"><i class="fa-solid fa-bars"></i></button>
+            <div id="threeLineMenu" class="dropdown-menu">
+                <a href="profile.html?mode=edit"><i class="fa-regular fa-user" style="font-size: 11px;"></i> User Profile</a>
+                <a href="developer.html" class="menu-line-break"><i class="fa-solid fa-code" style="font-size: 11px;"></i> Developer Info</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="date-bar">
+            <span class="day" id="dashDay">আজ লোডিং...</span>
+            <span class="date" id="dashDate">-- -- ----</span>
+        </div>
+
+        <!-- প্রিমিয়াম ড্যাশবোর্ড কার্ড -->
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="avatar"><i class="fa-solid fa-user-graduate"></i></div>
+                <div class="user-details">
+                    <h2 id="displayProfileName">로드 হচ্ছে...</h2>
+                    <p id="displayInstitution"><i class="fa-solid fa-school" style="margin-right: 4px; color: #475569;"></i>শিক্ষা প্রতিষ্ঠান যুক্ত নেই</p>
+                    <div class="meta-tags">
+                        <span>Group: <span id="displayGroup">--</span></span>
+                        <span>Roll: <span id="displayRoll">--</span></span>
+                    </div>
+                    <span id="displayMilestone" class="level-badge">🎖️ Level 1 (Knowledge Seeker)</span>
+                </div>
+            </div>
+            
+            <!-- আপগ্রেডেড রানিং স্ট্যাটাস ড্যাশবোর্ড (সেকেন্ড ট্র্যাকার সাপোর্টসহ) -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span>Today's Focus Time</span>
+                    <p id="syncStudyTotal" style="color: #38BDF8; font-weight: 800;">0m 0s</p>
+                </div>
+                <div class="stat-box">
+                    <span>Global Vault Bank</span>
+                    <p id="syncTotalXp" style="color: #10B981; font-weight: 800;">0 XP</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- লাইভ জোন কার্ডস -->
+        <div id="liveClassCard" class="live-card bg-running-class hidden-card">
+            <div class="live-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
+            <div class="live-info">
+                <h4>রানিং ক্লাস ⚡</h4>
+                <h3 id="classNameDisplay">লোডিং...</h3>
+                <p id="classTimeDisplay"><i class="fa-regular fa-clock"></i> সময়: --:--</p>
+            </div>
+        </div>
+
+        <div id="liveExamCard" class="live-card bg-exam-alert hidden-card">
+            <div class="live-icon"><i class="fa-solid fa-file-signature"></i></div>
+            <div class="live-info">
+                <h4 id="examBadgeText">আজকের এক্সাম 🚨</h4>
+                <h3 id="examNameDisplay">লোডিং...</h3>
+                <p id="examCountdownDisplay"><i class="fa-solid fa-hourglass-half"></i> পরীক্ষা বাকি: -- দিন</p>
+            </div>
+        </div>
+
+        <div id="liveTaskCard" class="live-card bg-task-reminder hidden-card">
+            <div class="live-icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="live-info">
+                <h4>টাস্ক রিমাইন্ডার</h4>
+                <h3 id="taskCountText">আপনার টাস্ক বাকি আছে! 📝</h3>
+            </div>
+        </div>
+
+        <p class="section-title">Application Workspace</p>
+        <div class="workspace-grid">
+            <a href="./routine.html" class="widget-card w-routine">
+                <div class="widget-icon"><i class="fa-solid fa-table-list"></i></div>
+                <h3>Class Timetable</h3>
+                <p>Manage daily running classes</p>
+            </a>
+            <a href="./exam.html" class="widget-card w-exam">
+                <div class="widget-icon"><i class="fa-solid fa-fire"></i></div>
+                <h3>Exam Schedule</h3>
+                <p>Countdown tracking sheets</p>
+            </a>
+            <a href="timer.html" class="widget-card w-timer">
+                <div class="widget-icon"><i class="fa-solid fa-stopwatch"></i></div>
+                <h3>Focus Stopwatch</h3>
+                <p>30m Core Study Engine</p>
+            </a>
+            <a href="tasks.html" class="widget-card w-tasks">
+                <div class="widget-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h3>Daily Quests</h3>
+                <p>XP base tasks backlog</p>
+            </a>
+            <a href="budget.html" class="widget-card w-budget">
+                <div class="widget-icon"><i class="fa-solid fa-wallet"></i></div>
+                <h3>Pocket Tracker</h3>
+                <p>আয় ও খরচের হিসাব</p>
+            </a>
+            <a href="notes.html" class="widget-card w-vault">
+                <div class="widget-icon"><i class="fa-solid fa-note-sticky"></i></div>
+                <h3>Study Vault</h3>
+                <p>পড়ার দরকারি নোটপ্যাড</p>
+            </a>
+        </div>
+
+        <div id="wisdomBox" class="wisdom-box">Loading wisdom...</div>
+    </main>
+        <script>
+        const banglaDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+        const wisdomQuotes = [
+            "🧠 'বিজ্ঞান হলো সুশৃঙ্খল জ্ঞান, আর প্রজ্ঞা হলো সুশৃঙ্খল জীবন।' অলসতা ঝেড়ে পড়া শুরু করো।",
+            "🚀 'জटिल অ্যালগরিদম হোক কিংবা ক্যালকুলাস—নিয়মিত ফোকাসই একমাত্র মাস্টার কি!'",
+            "⚡ 'তোমার আজকের ৩০ মিনিটের কঠোর পরিশ্রম, আগামীকালের একটি সফল ক্যারিয়ারের ভিত্তি।'",
+            "🔬 'পরীক্ষাগারের ব্যর্থতা যেমন নতুন আবিষ্কারের জন্ম দেয়, তেমনি তোমার ভুলগুলো তোমাকে শেখাবে।'"
+        ];
+
+        function toggleDropdownMenu(event) {
+            event.stopPropagation();
+            document.getElementById('threeLineMenu').classList.toggle('show-menu');
+        }
+
+        window.addEventListener('click', function() {
+            const menu = document.getElementById('threeLineMenu');
+            if (menu.classList.contains('show-menu')) menu.classList.remove('show-menu');
+        });
+
+        function startClockEngine() {
+            const now = new Date();
+            let hours = now.getHours(), mins = now.getMinutes(), secs = now.getSeconds();
+            let ampm = hours >= 12 ? 'PM' : 'AM'; hours = hours % 12 || 12;
+            
+            document.getElementById('liveClock').innerText = `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} ${ampm}`;
+            document.getElementById('dashDay').innerText = `আজ ${banglaDays[now.getDay()]}`;
+            document.getElementById('dashDate').innerText = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+        }
+        setInterval(startClockEngine, 1000);
+
+        // [রানিং সিঙ্ক ইঞ্জিন] টাইমারের ডাটা যেন ১ সেকেন্ডের জন্যও না আটকে রিয়েল-টাইমে হোমে আপডেট হয়
+        function syncLiveDashboardCaches() {
+            if (localStorage.getItem('app_user_registered') !== 'true') {
+                window.location.href = "profile.html";
+                return;
+            }
+
+            document.getElementById('displayProfileName').innerText = localStorage.getItem('profile_name') || "স্টুডেন্ট";
+            document.getElementById('displayInstitution').innerText = localStorage.getItem('profile_institution') || "শিক্ষা প্রতিষ্ঠান যুক্ত নেই";
+            document.getElementById('displayGroup').innerText = localStorage.getItem('profile_group') || "--";
+            document.getElementById('displayRoll').innerText = localStorage.getItem('profile_roll') || "--";
+            
+            // [রানিং ফিক্স] টাইমার পেজের 'today_study_seconds' সরাসরি হোমে সেকেন্ড-মিনিট ফরম্যাটে শো করানো হচ্ছে
+            const todaySecs = parseInt(localStorage.getItem('today_study_seconds')) || 0;
+            const tMin = Math.floor(todaySecs / 60);
+            const tSec = todaySecs % 60;
+            document.getElementById('syncStudyTotal').innerText = `${tMin}m ${tSec}s`;
+            
+            // গ্লোবাল এক্সপি ব্যাংক এবং ডাইনামিক লেভেল ইঞ্জিন
+            let totalXp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
+            document.getElementById('syncTotalXp').innerText = `${totalXp} XP`;
+
+            let milestone = "🎖️ Level 1 (Knowledge Seeker)";
+            if (totalXp >= 200 && totalXp < 500) milestone = "⚔️ Level 2 (Mind Ninja)";
+            else if (totalXp >= 500 && totalXp < 1000) milestone = "👑 Level 3 (Brain Titan)";
+            else if (totalXp >= 1000) milestone = "💎 Level 4 (Omniscient Sage)";
+            document.getElementById('displayMilestone').innerText = milestone;
+        }
+
+        function runLiveTrackingEngine() {
+            const now = new Date();
+            const englishDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const todayName = englishDays[now.getDay()];
+            const currentTimeStr = now.toTimeString().substring(0, 5);
+
+            // ক্লাস রুটিন সিঙ্ক
+            const routineData = JSON.parse(localStorage.getItem('student_routine')) || {};
+            const todayClasses = routineData[todayName] || [];
+            let runningClass = null;
+
+            for (let c of todayClasses) {
+                if (currentTimeStr >= c.startTime && currentTimeStr <= c.endTime) { runningClass = c; break; }
+            }
+
+            const classCard = document.getElementById('liveClassCard');
+            if (runningClass) {
+                classCard.classList.remove('hidden-card');
+                document.getElementById('classNameDisplay').innerText = runningClass.subject;
+                document.getElementById('classTimeDisplay').innerHTML = `<i class="fa-regular fa-clock"></i> সময়: ${runningClass.startTime} - ${runningClass.endTime}`;
+            } else { classCard.classList.add('hidden-card'); }
+
+            // এক্সাম কাউন্টডাউন সিঙ্ক
+            const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+            let todayExam = null, upcomingExam = null, minDaysLeft = Infinity;
+            const todayDateStr = now.toISOString().split('T')[0];
+
+            examList.forEach(exam => {
+                const examDate = new Date(exam.date);
+                const timeDiff = examDate.getTime() - now.getTime();
+                const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                if (exam.date === todayDateStr) todayExam = exam;
+                else if (daysLeft > 0 && daysLeft < minDaysLeft) { minDaysLeft = daysLeft; upcomingExam = exam; }
+            });
+
+            const examCard = document.getElementById('liveExamCard');
+            if (todayExam) {
+                examCard.classList.remove('hidden-card');
+                document.getElementById('examBadgeText').innerText = "আজকের এক্সাম 🚨";
+                document.getElementById('examNameDisplay').innerText = todayExam.subject;
+                document.getElementById('examCountdownDisplay').innerText = "আজকেই পরীক্ষা, শুভকামনা! 👍";
+            } else if (upcomingExam) {
+                examCard.classList.remove('hidden-card');
+                document.getElementById('examBadgeText').innerText = "আসন্ন এক্সাম 📅";
+                document.getElementById('examNameDisplay').innerText = upcomingExam.subject;
+                document.getElementById('examCountdownDisplay').innerHTML = `<i class="fa-solid fa-hourglass-half"></i> পরীক্ষা বাকি: ${minDaysLeft} দিন`;
+            } else { examCard.classList.add('hidden-card'); }
+
+            // টাস্ক কাউন্টার সিঙ্ক
+            const taskList = JSON.parse(localStorage.getItem('student_tasks')) || [];
+            const pendingTasks = taskList.filter(task => !task.completed);
+            const taskCard = document.getElementById('liveTaskCard');
+            if (pendingTasks.length > 0) {
+                taskCard.classList.remove('hidden-card');
+                document.getElementById('taskCountText').innerText = `আপনার ${pendingTasks.length}টি টাস্ক বাকি আছে! 📝`;
+            } else { taskCard.classList.add('hidden-card'); }
+        }
+
+        function bootWisdomQuote() {
+            const index = Math.floor(Math.random() * wisdomQuotes.length);
+            document.getElementById('wisdomBox').innerHTML = wisdomQuotes[index];
+        }
+
+        window.onload = function() {
+            startClockEngine();
+            syncLiveDashboardCaches();
+            runLiveTrackingEngine();
+            bootWisdomQuote();
+            
+            // হোম স্ক্রিনের প্রফাইল কার্ড ১ সেকেন্ড পরপরই মেমোরির ডাটা রিয়েল-টাইমে টানবে
+            setInterval(syncLiveDashboardCaches, 1000);
+            setInterval(runLiveTrackingEngine, 30000);
+        };
+    </script>
+</body>
+</html>

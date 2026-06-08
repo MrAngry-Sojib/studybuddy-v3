@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy Pro - Exam Mission Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            padding-bottom: 150px;
+        }
+        .header {
+            background-color: #0D1520;
+            border-bottom: 1px solid #1E293B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .back-btn { background: none; border: none; color: #38BDF8; font-size: 16px; cursor: pointer; }
+        .header h1 { font-size: 16px; font-weight: 800; color: #FFF; }
+        
+        .container {
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* মিশন কার্ড লেআউট */
+        .mission-card {
+            background: linear-gradient(135deg, #0D1520, #131A26);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .level-critical { border: 1px solid #EF4444; box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.05); animation: pulseCritical 1.5s infinite alternate; }
+        .level-warning { border: 1px solid #F59E0B; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.05); }
+        .level-normal { border: 1px solid #10B981; box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.05); }
+
+        .mission-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .mission-header h3 { font-size: 15px; font-weight: 800; color: #FFF; }
+        
+        .exam-time-lbl { font-size: 10px; color: #38BDF8; font-weight: 700; font-family: monospace; display: block; margin-bottom: 8px; }
+        
+        .countdown-badge { font-size: 10px; font-weight: 800; font-family: monospace; padding: 3px 8px; border-radius: 6px; background-color: rgba(9, 13, 20, 0.6); }
+        .badge-red { color: #EF4444; }
+        .badge-yellow { color: #F59E0B; }
+        .badge-green { color: #10B981; }
+
+        .syllabus-txt { font-size: 11px; color: #94A3B8; line-height: 1.4; margin-bottom: 12px; }
+
+        /* প্রোগ্রেস বার */
+        .progress-zone { margin-bottom: 14px; }
+        .progress-label-row { display: flex; justify-content: space-between; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+        .progress-bar-bg { width: 100%; height: 6px; background-color: #090D14; border-radius: 10px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #38BDF8, #2563EB); width: 0%; border-radius: 10px; }
+
+        .name-alert-box { background-color: rgba(239, 68, 68, 0.04); border: 1px dashed rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 8px 10px; font-size: 10px; color: #F87171; line-height: 1.4; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 6px; }
+
+        .btn-complete { width: 100%; background: #1E293B; border: 1px solid #334155; color: #38BDF8; padding: 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-complete:active { transform: scale(0.97); }
+
+        /* ফ্লোটিং বাটন গ্রুপ (Stack) */
+        .floating-group { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 12px; z-index: 90; }
+        .btn-float { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; border: none; color: #FFF; }
+        .f-add { background: linear-gradient(135deg, #EF4444, #B91C1C); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35); }
+        .f-manage { background: linear-gradient(135deg, #2563EB, #1D4ED8); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35); }
+        .btn-float:active { transform: scale(0.92); }
+
+        @keyframes pulseCritical {
+            0% { border-color: #B91C1C; box-shadow: 0 0 5px rgba(185, 28, 28, 0.2); }
+            100% { border-color: #EF4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        }
+                /* পপ-আপস সিএসএস */
+        .popup-backdrop { position: fixed; inset: 0; background-color: rgba(8, 11, 17, 0.9); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 15px; z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .popup-active { opacity: 1 !important; pointer-events: auto !important; }
+        .popup-card { background-color: #0D1520; border: 1px solid #1E293B; border-radius: 24px; padding: 20px; width: 100%; max-width: 360px; max-height: 85vh; overflow-y: auto; }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #1E293B; padding-bottom: 8px; }
+        .popup-header h3 { font-size: 14px; font-weight: 800; color: #FFF; }
+        .close-btn { background: none; border: none; color: #64748B; font-size: 18px; cursor: pointer; }
+
+        .input-group { margin-bottom: 10px; }
+        .input-group label { display: block; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+        .input-field { width: 100%; background-color: #090D14; border: 1px solid #1E293B; border-radius: 8px; padding: 10px; font-size: 12px; color: #FFF; outline: none; }
+        
+        .btn-save { width: 100%; background: linear-gradient(135deg, #EF4444, #B91C1C); color: #FFF; border: none; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        
+        /* ম্যানেজ লিস্ট এবং হিস্ট্রি ডিজাইন */
+        .manage-item { background: #090D14; border: 1px solid #1E293B; border-radius: 12px; padding: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .manage-item-info h4 { font-size: 12px; font-weight: 700; color: #FFF; }
+        .manage-item-info p { font-size: 10px; color: #64748B; margin-top: 2px; }
+        .manage-actions { display: flex; gap: 6px; }
+        .btn-action { background: none; border: none; cursor: pointer; padding: 6px; font-size: 13px; }
+        .act-edit { color: #38BDF8; } .act-del { color: #EF4444; }
+
+        .history-divider { font-size: 9px; font-weight: 800; color: #10B981; text-transform: uppercase; margin-top: 16px; margin-bottom: 8px; letter-spacing: 0.5px; border-top: 1px dashed #1E293B; padding-top: 12px; }
+        .history-item { background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.1); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: 11px; }
+
+        .no-data { text-align: center; font-size: 11px; color: #64748B; padding: 25px; border: 1px dashed #1E293B; border-radius: 16px; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button onclick="window.location.href='index.html'" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1>Exam Missions</h1>
+    </header>
+
+    <main class="container">
+        <div id="examListContainer">
+            </div>
+    </main>
+
+    <div class="floating-group">
+        <button class="btn-float f-manage" onclick="openManagePopup()"><i class="fa-solid fa-list-check"></i></button>
+        <button class="btn-float f-add" onclick="openExamPopup()"><i class="fa-solid fa-plus"></i></button>
+    </div>
+
+    <div id="examPopup" class="popup-backdrop">
+        <div class="popup-card">
+            <div class="popup-header">
+                <h3 id="formModeTitle">Launch New Exam Mission</h3>
+                <button class="close-btn" onclick="closeExamPopup()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveOrUpdateExamMission(event)">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="input-group">
+                    <label>Subject Name</label>
+                    <input type="text" id="exSubject" required class="input-field" placeholder="Higher Math, English">
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Exam Date</label>
+                        <input type="date" id="exDate" required class="input-field">
+                    </div>
+                    <div class="input-group">
+                        <label>Exam Time</label>
+                        <input type="time" id="exTime" required class="input-field">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Preparation (%)</label>
+                    <input type="number" id="exPrep" required min="0" max="100" class="input-field" placeholder="0 - 100%">
+                </div>
+                <div class="input-group">
+                    <label>Syllabus Outline</label>
+                    <textarea id="exSyllabus" required class="input-field" rows="3" placeholder="Chapter 1, 3, 5 এবং টেস্ট পেপার সলভ" style="resize: none; font-family: inherit;"></textarea>
+                </div>
+                <button type="submit" class="btn-save" id="formSubmitBtn">Deploy Mission Sheet</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="managePopup" class="popup-backdrop">
+        <div class="popup-card">
+            <div class="popup-header">
+                <h3>Manage Missions & History</h3>
+                <button class="close-btn" onclick="closeManagePopup()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <label style="font-size: 9px; font-weight: 800; color:#38BDF8; text-transform:uppercase; display:block; margin-bottom:6px;">Active Exams Sheet</label>
+            <div id="manageActiveContainer">
+                </div>
+
+            <div class="history-divider">🏆 Completed Missions History</div>
+            <div id="manageHistoryContainer">
+                </div>
+        </div>
+    </div>
+        <script>
+        const userName = localStorage.getItem('profile_name') || "স্টুডেন্ট";
+
+        window.onload = function() {
+            renderExamMissionsList();
+            setInterval(renderExamMissionsList, 60000);
+        }
+
+        function openExamPopup() { document.getElementById('examPopup').classList.add('popup-active'); }
+        function closeExamPopup() { 
+            document.getElementById('examPopup').classList.remove('popup-active'); 
+            // ফর্ম ডিফল্ট করা
+            document.getElementById('editIndex').value = "-1";
+            document.getElementById('formModeTitle').innerText = "Launch New Exam Mission";
+            document.getElementById('formSubmitBtn').innerText = "Deploy Mission Sheet";
+            document.getElementById('exSubject').value = '';
+            document.getElementById('exDate').value = '';
+            document.getElementById('exTime').value = '';
+            document.getElementById('exPrep').value = '';
+            document.getElementById('exSyllabus').value = '';
+        }
+
+        function openManagePopup() {
+            document.getElementById('managePopup').classList.add('popup-active');
+            renderManagementLists();
+        }
+        function closeManagePopup() { document.getElementById('managePopup').classList.remove('popup-active'); }
+
+        // টাইম টু ১২ ঘণ্টার ফর্ম্যাট কনভার্টার
+        function formatTimeTo12Hour(timeStr) {
+            if(!timeStr) return "--:--";
+            let [hours, minutes] = timeStr.split(':');
+            let ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        // ড্যাশবোর্ড কার্ড রেন্ডার ইঞ্জিন
+        function renderExamMissionsList() {
+            const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+            const container = document.getElementById('examListContainer');
+            container.innerHTML = '';
+
+            if (examList.length === 0) {
+                container.innerHTML = `<div class="no-data">বর্তমানে কোনো পরীক্ষা শিডিউল করা নেই, ${userName}! নিশ্চিন্তে পড়াশোনা করো।</div>`;
+                return;
+            }
+
+            examList.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T');
+
+            examList.forEach((exam, index) => {
+                const examDateTime = new Date(exam.date + 'T' + exam.time);
+                const timeDiff = examDateTime.getTime() - now.getTime();
+                const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                let urgencyClass = "level-normal"; let badgeClass = "badge-green";
+                let countdownTxt = `বাকি: ${daysLeft} দিন`; let isCritical = false;
+
+                if (exam.date === todayStr) {
+                    urgencyClass = "level-critical"; badgeClass = "badge-red"; countdownTxt = "আজকে পরীক্ষা 🚨";
+                } else if (daysLeft <= 3 && daysLeft > 0) {
+                    urgencyClass = "level-critical"; badgeClass = "badge-red"; countdownTxt = `বাকি: মাত্র ${daysLeft} দিন 🚨`; isCritical = true;
+                } else if (daysLeft <= 7 && daysLeft > 3) {
+                    urgencyClass = "level-warning"; badgeClass = "badge-yellow"; countdownTxt = `বাকি: ${daysLeft} দিন ⏳`;
+                }
+
+                container.innerHTML += `
+                    <div class="mission-card ${urgencyClass}">
+                        <div class="mission-header">
+                            <h3>${exam.subject}</h3>
+                            <span class="countdown-badge ${badgeClass}">${countdownTxt}</span>
+                        </div>
+                        <span class="exam-time-lbl"><i class="fa-regular fa-clock"></i> সময়সূচী: ${exam.date} | ${formatTimeTo12Hour(exam.time)}</span>
+                        <p class="syllabus-txt"><i class="fa-regular fa-file-lines" style="color:#64748B; margin-right:4px;"></i> সিলেবাস: ${exam.syllabus}</p>
+                        
+                        ${ (isCritical && parseInt(exam.preparation) < 100) ? `
+                            <div class="name-alert-box">
+                                <i class="fa-solid fa-triangle-exclamation" style="margin-top:2px;"></i>
+                                <span><b>${userName}</b>, পরীক্ষার আর মাত্র অল্প সময় বাকি! তোমার প্রিপারেশন এখনো ${exam.preparation}%। দ্রুত ফোকাস টাইমার সচল করো!</span>
+                            </div>
+                        ` : '' }
+
+                        <div class="progress-zone">
+                            <div class="progress-label-row"><span>Preparation Status</span><span style="color:#38BDF8;">${exam.preparation}%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${exam.preparation}%;"></div></div>
+                        </div>
+
+                        <button class="btn-complete" onclick="archiveMissionComplete(${index}, '${exam.subject}')">
+                            Mission Completed <i class="fa-solid fa-shield-heart"></i>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        // নতুন এক্সাম অ্যাড এবং এক্সিস্টিং এক্সাম এডিটের কম্বাইন্ড লজিক
+        function saveOrUpdateExamMission(event) {
+            event.preventDefault();
+
+            const subject = document.getElementById('exSubject').value.trim();
+            const date = document.getElementById('exDate').value;
+            const time = document.getElementById('exTime').value;
+            const preparation = document.getElementById('exPrep').value;
+            const syllabus = document.getElementById('exSyllabus').value.trim();
+            const editIndex = parseInt(document.getElementById('editIndex').value);
+
+            const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+
+            if (editIndex === -1) {
+                // নিউ ইনপুট মোড
+                examList.push({ subject, date, time, preparation, syllabus });
+            } else {
+                // এডিট মোড রাইট-ব্যাক
+                examList[editIndex] = { subject, date, time, preparation, syllabus };
+            }
+
+            localStorage.setItem('student_exams', JSON.stringify(examList));
+            closeExamPopup();
+            renderExamMissionsList();
+        }
+
+        // ম্যানেজার ইন্টারফেস ডাটা লোডার
+        function renderManagementLists() {
+            const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+            const historyList = JSON.parse(localStorage.getItem('student_exams_history')) || [];
+            
+            const activeContainer = document.getElementById('manageActiveContainer');
+            const historyContainer = document.getElementById('manageHistoryContainer');
+            
+            activeContainer.innerHTML = '';
+            historyContainer.innerHTML = '';
+
+            // ১. একটিভ লিস্ট উইথ এডিট/ডিলিট বাটন
+            if(examList.length === 0) activeContainer.innerHTML = '<div class="no-data">কোনো রানিং পরীক্ষা নেই।</div>';
+            else {
+                examList.forEach((exam, idx) => {
+                    activeContainer.innerHTML += `
+                        <div class="manage-item">
+                            <div class="manage-item-info">
+                                <h4>${exam.subject}</h4>
+                                <p>${exam.date} | ${formatTimeTo12Hour(exam.time)}</p>
+                            </div>
+                            <div class="manage-actions">
+                                <button class="btn-action act-edit" onclick="triggerEditModeSetup(${idx})"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="btn-action act-del" onclick="deleteExamMission(${idx})"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // ২. ইতিহাস আর্কাইভ ডাটা লোডার
+            if(historyList.length === 0) historyContainer.innerHTML = '<div class="no-data">ইতিহাসের পাতায় এখনো কোনো রেকর্ড জমা হয়নি।</div>';
+            else {
+                historyList.forEach(hist => {
+                    historyContainer.innerHTML += `
+                        <div class="history-item">
+                            <span style="font-weight:700; color:#E2E8F0;"><i class="fa-solid fa-circle-check" style="color:#10B981; margin-right:4px;"></i> ${hist.subject}</span>
+                            <span style="color:#64748B; font-family:monospace;">${hist.date} [Passed]</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function triggerEditModeSetup(index) {
+            const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+            const data = examList[index];
+
+            closeManagePopup();
+            openExamPopup();
+
+            // ফর্মের ডেটা ফিল করা হচ্ছে
+            document.getElementById('editIndex').value = index;
+            document.getElementById('formModeTitle').innerText = "Edit Exam Mission Setup";
+            document.getElementById('formSubmitBtn').innerText = "Save & Apply Modifications";
+
+            document.getElementById('exSubject').value = data.subject;
+            document.getElementById('exDate').value = data.date;
+            document.getElementById('exTime').value = data.time || "";
+            document.getElementById('exPrep').value = data.preparation;
+            document.getElementById('exSyllabus').value = data.syllabus;
+        }
+
+        function deleteExamMission(index) {
+            if (confirm("তুমি কি নিশ্চিতভাবে এই পরীক্ষার মিশন শিটটি রিমুভ করে দিতে চাও?")) {
+                const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+                examList.splice(index, 1);
+                localStorage.setItem('student_exams', JSON.stringify(examList));
+                renderManagementLists();
+                renderExamMissionsList();
+            }
+        }
+
+        // মিশন কমপ্লিট লজিক এবং ইতিহাস ট্র্যাকার ব্যাকআপ
+        function archiveMissionComplete(index, subjectName) {
+            if (confirm(`অভিনন্দন ${userName}! তুমি কি নিশ্চিতভাবে "${subjectName}" মিশনটি সফলভাবে শেষ করেছো?`)) {
+                const examList = JSON.parse(localStorage.getItem('student_exams')) || [];
+                const historyList = JSON.parse(localStorage.getItem('student_exams_history')) || [];
+                
+                // ১. ইতিহাস আর্কাইভে পুশ করা
+                historyList.push({ subject: examList[index].subject, date: examList[index].date });
+                localStorage.setItem('student_exams_history', JSON.stringify(historyList));
+
+                // ২. লিস্ট থেকে রিমুভ
+                examList.splice(index, 1);
+                localStorage.setItem('student_exams', JSON.stringify(examList));
+
+                // ৩. এক্সপি ক্যাশ ক্রেডিট
+                let currentXp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
+                currentXp += 50;
+                localStorage.setItem('global_vault_xp', currentXp.toString());
+
+                renderExamMissionsList();
+                alert(`🎯 মিশন সাকসেস, ${userName}!\n\nপরীক্ষাটি ইতিহাসে সেভ করা হয়েছে এবং তোমার গ্লোবাল ব্যাংকে +50 XP বোনাস যোগ করা হয়েছে!`);
+            }
+        }
+    </script>
+</body>
+</html>

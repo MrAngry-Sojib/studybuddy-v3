@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Tracker — Monthly Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            padding-bottom: 40px;
+        }
+        .header {
+            background-color: #0D1520;
+            border-bottom: 1px solid #1E293B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .back-btn { background: none; border: none; color: #38BDF8; font-size: 16px; cursor: pointer; }
+        .header h1 { font-size: 16px; font-weight: 800; color: #FFF; }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* নিওন গ্লোয়িং মেইন ব্যালেন্স কার্ড */
+        .main-wallet-card {
+            background: linear-gradient(145deg, #0D1520, #090D14);
+            border: 1px solid #1E293B;
+            border-radius: 24px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 16px;
+        }
+        .wallet-user {
+            font-size: 11px;
+            font-weight: 800;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .balance-label { font-size: 11px; color: #94A3B8; margin-bottom: 4px; text-transform: uppercase; }
+        .live-balance {
+            font-size: 34px;
+            font-weight: 900;
+            color: #10B981;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            font-family: monospace;
+        }
+
+        /* মান্থলি ফিল্টার জোন ও ইন্টেলিজেন্ট বোর্ড */
+        .monthly-filter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        .month-selector {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            color: #38BDF8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .monthly-stats-card {
+            background: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .stat-box { text-align: center; background-color: #090D14; padding: 12px; border-radius: 12px; border: 1px solid rgba(30, 41, 59, 0.5); }
+        .stat-box p { font-size: 9px; color: #64748B; font-weight: 700; text-transform: uppercase; }
+        .stat-val { font-size: 15px; font-weight: 700; font-family: monospace; margin-top: 4px; }
+        .inc-val { color: #06B6D4; }
+        .exp-val { color: #EF4444; }
+                /* কুইক অ্যাকশন বাটন */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .btn-trigger {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 14px;
+            padding: 14px;
+            color: #FFF;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-inc-trigger:hover { border-color: #06B6D4; background-color: rgba(6, 182, 212, 0.05); }
+        .btn-exp-trigger:hover { border-color: #EF4444; background-color: rgba(239, 68, 68, 0.05); }
+        .btn-inc-trigger i { color: #06B6D4; }
+        .btn-exp-trigger i { color: #EF4444; }
+
+        /* মেগা স্টেটমেন্ট বাটন */
+        .btn-view-history {
+            width: 100%;
+            background: linear-gradient(135deg, #1E293B, #0F172A);
+            border: 1px dashed #334155;
+            color: #38BDF8;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-view-history:active { transform: scale(0.98); }
+
+        /* পপ-আপ মড্যুলস */
+        .popup-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(8, 11, 17, 0.9);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .popup-active { opacity: 1 !important; pointer-events: auto !important; }
+        .popup-card {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 24px;
+            padding: 20px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #1E293B; padding-bottom: 8px; }
+        .popup-header h3 { font-size: 13px; font-weight: 800; color: #FFF; text-transform: uppercase; }
+        .close-btn { background: none; border: none; color: #64748B; font-size: 18px; cursor: pointer; }
+        
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+        .input-field, .select-field { width: 100%; background-color: #090D14; border: 1px solid #1E293B; border-radius: 8px; padding: 10px; font-size: 12px; color: #FFF; outline: none; }
+        .input-field:focus, .select-field:focus { border-color: #38BDF8; }
+        
+        .btn-submit { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 8px; color: #080B11; }
+        .btn-submit-inc { background: linear-gradient(135deg, #06B6D4, #0891B2); }
+        .btn-submit-exp { background: linear-gradient(135deg, #EF4444, #DC2626); color: #FFF; }
+
+        /* পপ-আপের ভেতরের হিস্ট্রি লিস্ট লেআউট */
+        .modal-scroll-area { max-height: 55vh; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 8px; }
+        .history-card { background-color: #090D14; border: 1px solid #1E293B; border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+        .card-left { display: flex; align-items: center; gap: 10px; }
+        .icon-wrapper { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .inc-icon { background-color: rgba(6, 182, 212, 0.1); color: #06B6D4; }
+        .exp-icon { background-color: rgba(239, 68, 68, 0.1); color: #EF4444; }
+        .title-txt { font-size: 12px; font-weight: 700; color: #FFF; }
+        .meta-txt { font-size: 9px; color: #506176; margin-top: 1px; }
+        .amount-txt { font-size: 12px; font-weight: 700; font-family: monospace; }
+        .delete-entry-btn { background: none; border: none; color: #334155; font-size: 12px; cursor: pointer; padding: 4px; }
+        .delete-entry-btn:hover { color: #EF4444; }
+        .empty-state { text-align: center; padding: 30px 10px; color: #475569; font-size: 11px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button onclick="window.location.href='index.html'" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1>Wallet Tracker</h1>
+    </header>
+
+    <main class="container">
+        <!-- মেইন গ্লোবাল ওয়ালেট বোর্ড -->
+        <div class="main-wallet-card">
+            <div id="walletUserDisplay" class="wallet-user"></div>
+            <div class="balance-label">Total Net Balance</div>
+            <div id="balanceDisplay" class="live-balance">৳ 0</div>
+        </div>
+
+        <!-- মান্থলি ফিল্টার ড্যাশবোর্ড জোন -->
+        <div class="monthly-filter-row">
+            <span style="font-size:11px; font-weight:800; color:#38BDF8; text-transform:uppercase;">Monthly Statement</span>
+            <select id="monthFilterSelect" class="month-selector" onchange="calculateAndRenderWallet()"></select>
+        </div>
+
+        <!-- সুনির্দিষ্ট মাসের ইনকাম-খরচ কার্ড -->
+        <div class="monthly-stats-card">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <p>Month Income</p>
+                    <div id="monthIncomeDisplay" class="stat-val inc-val">৳ 0</div>
+                </div>
+                <div class="stat-box">
+                    <p>Month Expense</p>
+                    <div id="monthExpenseDisplay" class="stat-val exp-val">৳ 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- কুইক বাটন অ্যাকশন সেন্টার -->
+        <div class="action-grid">
+            <button class="btn-trigger btn-inc-trigger" onclick="openBudgetModal('INCOME')">
+                <i class="fa-solid fa-circle-plus"></i> Add Income
+            </button>
+            <button class="btn-trigger btn-exp-trigger" onclick="openBudgetModal('EXPENSE')">
+                <i class="fa-solid fa-circle-minus"></i> Add Expense
+            </button>
+        </div>
+
+        <!-- মেগা সেপারেট স্টেটমেন্ট ট্রিগার বাটন -->
+        <button class="btn-view-history" onclick="openHistoryModal()">
+            View Statement History <i class="fa-solid fa-receipt"></i>
+        </button>
+    </main>
+
+    <!-- পপ-আপ ১: বাজেট ইনপুট মডাল -->
+    <div id="budgetModal" class="popup-backdrop">
+        <div class="popup-card">
+            <div class="popup-header">
+                <h3 id="modalTitle">Add Transaction</h3>
+                <button class="close-btn" onclick="closeBudgetModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="handleBudgetFormSubmit(event)">
+                <input type="hidden" id="transactionType">
+                <div class="input-group">
+                    <label>Amount (৳)</label>
+                    <input type="number" id="txAmount" required min="1" class="input-field" placeholder="কত টাকা?">
+                </div>
+                <div class="input-group">
+                    <label>Category / Tag</label>
+                    <select id="txCategory" class="select-field"></select>
+                </div>
+                <div class="input-group">
+                    <label>Short Note (Optional)</label>
+                    <input type="text" id="txNote" class="input-field" placeholder="যেমন: দুপুরের খাবার, খাতা কেনা">
+                </div>
+                <button type="submit" id="submitBtn" class="btn-submit">Save Entry</button>
+            </form>
+        </div>
+    </div>
+        <!-- পপ-আপ ২: আলাদা ডেডিকেটেড স্টেটমেন্ট হিস্ট্রি উইন্ডো -->
+    <div id="historyModal" class="popup-backdrop">
+        <div class="popup-card" style="max-width: 380px;">
+            <div class="popup-header">
+                <h3>All Transactions Ledger</h3>
+                <button class="close-btn" onclick="closeHistoryModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- স্ক্রোলযোগ্য ট্রানজেকশন এরিয়া -->
+            <div id="historyContainer" class="modal-scroll-area"></div>
+        </div>
+    </div>
+
+    <script>
+        let budgetHistory = [];
+        let currentModalType = 'INCOME';
+
+        const incomeCategories = ["Allowance (বাসা থেকে)", "Tuition (টিউনিশন)", "Gift", "Others"];
+        const expenseCategories = ["Food & Snacks", "Conveyance (যাতায়াত)", "Books & Stationery", "Mobile Recharge", "Mess/Rent", "Others"];
+        const monthsNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        window.onload = function() {
+            // ডায়নামিক নেম সিঙ্ক (ডামি বা ফিক্সড নাম থাকবে না)
+            const savedName = localStorage.getItem('profile_name') || localStorage.getItem('username');
+            const userDisplay = document.getElementById('walletUserDisplay');
+            if (savedName && savedName.trim() !== "") {
+                userDisplay.innerText = `${savedName.trim()}'s Wallet`;
+            } else { userDisplay.innerText = ""; }
+
+            if (localStorage.getItem('pocket_budget_history')) {
+                budgetHistory = JSON.parse(localStorage.getItem('pocket_budget_history'));
+            }
+
+            buildMonthFilterDropdown();
+            calculateAndRenderWallet();
+        }
+
+        // হিস্ট্রির ওপর ভিত্তি করে ডাইনামিক মাস ও বছরের ড্রপডাউন জেনারেটর
+        function buildMonthFilterDropdown() {
+            const select = document.getElementById('monthFilterSelect');
+            select.innerHTML = '';
+            
+            const now = new Date();
+            const currentMonthYearKey = `${monthsNames[now.getMonth()]} ${now.getFullYear()}`;
+            
+            // ইউনিক মাসগুলোর সেট তৈরি
+            let activeMonths = new Set();
+            activeMonths.add(currentMonthYearKey); // কারেন্ট মাস সবসময় থাকবে
+            
+            budgetHistory.forEach(item => { if(item.monthYearKey) activeMonths.add(item.monthYearKey); });
+            
+            // ড্রপডাউনে ইনজেক্ট করা
+            activeMonths.forEach(m => {
+                select.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+            select.value = currentMonthYearKey; // ডিফল্ট কারেন্ট মাস ফোকাসড
+        }
+
+        function openBudgetModal(type) {
+            currentModalType = type;
+            document.getElementById('transactionType').value = type;
+            const modalTitle = document.getElementById('modalTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const categorySelect = document.getElementById('txCategory');
+            categorySelect.innerHTML = '';
+            
+            if (type === 'INCOME') {
+                modalTitle.innerText = "💸 Add Income Resource";
+                submitBtn.innerText = "Confirm Income";
+                submitBtn.className = "btn-submit btn-submit-inc";
+                incomeCategories.forEach(c => categorySelect.innerHTML += `<option value="${c}">${c}</option>`);
+            } else {
+                modalTitle.innerText = "💥 Add Pocket Expense";
+                submitBtn.innerText = "Lock Expense";
+                submitBtn.className = "btn-submit btn-submit-exp";
+                expenseCategories.forEach(c => categorySelect.innerHTML += `<option value="${c}">${c}</option>`);
+            }
+            document.getElementById('budgetModal').classList.add('popup-active');
+        }
+
+        function closeBudgetModal() {
+            document.getElementById('budgetModal').classList.remove('popup-active');
+            document.getElementById('txAmount').value = '';
+            document.getElementById('txNote').value = '';
+        }
+
+        function openHistoryModal() {
+            document.getElementById('historyModal').classList.add('popup-active');
+            renderHistoryLedgerOnly();
+        }
+        function closeHistoryModal() { document.getElementById('historyModal').classList.remove('popup-active'); }
+
+        function handleBudgetFormSubmit(event) {
+            event.preventDefault();
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const category = document.getElementById('txCategory').value;
+            let note = document.getElementById('txNote').value.trim() || category;
+            
+            const now = new Date();
+            const monthYearKey = `${monthsNames[now.getMonth()]} ${now.getFullYear()}`;
+            
+            // নেট এভেলেবল ব্যালেন্স সেফটি চেক
+            if (currentModalType === 'EXPENSE') {
+                const globalTotals = computeGlobalNetBalance();
+                if (amount > globalTotals.net) {
+                    alert("দুঃখিত সজিব, তোমার টোটাল ব্যালেন্সে পর্যাপ্ত টাকা নেই!");
+                    return;
+                }
+            }
+
+            let minutes = now.getMinutes();
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            let hours = now.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12 || 12;
+
+            const newEntry = {
+                id: 'tx_' + Date.now(),
+                type: currentModalType,
+                amount: amount,
+                category: category,
+                note: note,
+                monthYearKey: monthYearKey,
+                time: `${now.getDate()} ${monthsNames[now.getMonth()]}, ${hours}:${minutes} ${ampm}`
+            };
+
+            budgetHistory.unshift(newEntry);
+            localStorage.setItem('pocket_budget_history', JSON.stringify(budgetHistory));
+            
+            // যদি নতুন মাসের এন্ট্রি হয় তবে ড্রপডাউন রি-বিল্ড করা
+            buildMonthFilterDropdown();
+            calculateAndRenderWallet();
+            closeBudgetModal();
+        }
+
+        function computeGlobalNetBalance() {
+            let totalInc = 0; let totalExp = 0;
+            budgetHistory.forEach(item => {
+                if (item.type === 'INCOME') totalInc += item.amount;
+                else totalExp += item.amount;
+            });
+            return { net: (totalInc - totalExp) };
+        }
+
+        // কোর মাসিক ক্যালকুলেশন ও রেন্ডার ইঞ্জিন
+        function calculateAndRenderWallet() {
+            const globalNet = computeGlobalNetBalance();
+            document.getElementById('balanceDisplay').innerText = `৳ ${globalNet.net.toLocaleString()}`;
+
+            const selectedMonthYear = document.getElementById('monthFilterSelect').value;
+            let monthInc = 0; let monthExp = 0;
+
+            // শুধুমাত্র সিলেক্টেড মাসের ডাটা লুপ করা হচ্ছে
+            budgetHistory.forEach(item => {
+                if (item.monthYearKey === selectedMonthYear) {
+                    if (item.type === 'INCOME') monthInc += item.amount;
+                    else monthExp += item.amount;
+                }
+            });
+
+            document.getElementById('monthIncomeDisplay').innerText = `৳ ${monthInc.toLocaleString()}`;
+            document.getElementById('monthExpenseDisplay').innerText = `৳ ${monthExp.toLocaleString()}`;
+            
+            // যদি হিস্ট্রি মড্যাল ওপেন থাকে তবে রিয়েল টাইমে ওটাও আপডেট হবে
+            if(document.getElementById('historyModal').classList.contains('popup-active')) {
+                renderHistoryLedgerOnly();
+            }
+        }
+
+        // ডেডিকেটেড হিস্ট্রি ভিউয়ার
+        function renderHistoryLedgerOnly() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+
+            if (budgetHistory.length === 0) {
+                container.innerHTML = `<div class="empty-state">খাতায় কোনো লেনদেনের রেকর্ড নেই।</div>`;
+                return;
+            }
+
+            budgetHistory.forEach(item => {
+                const isInc = (item.type === 'INCOME');
+                container.innerHTML += `
+                    <div class="history-card">
+                        <div class="card-left">
+                            <div class="icon-wrapper ${isInc ? 'inc-icon' : 'exp-icon'}">
+                                <i class="${isInc ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'}"></i>
+                            </div>
+                            <div class="details-block">
+                                <div class="title-txt">${item.note}</div>
+                                <div class="meta-txt">${item.category} • ${item.time}</div>
+                            </div>
+                        </div>
+                        <div class="card-right">
+                            <span class="amount-txt" style="color: ${isInc ? '#06B6D4' : '#EF4444'}">
+                                ${isInc ? '+' : '-'}৳${item.amount}
+                            </span>
+                            <button class="delete-entry-btn" onclick="deleteBudgetEntry('${item.id}')">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteBudgetEntry(id) {
+            if (confirm("এই হিসাবটি ডিলিট করতে নিশ্চিত? ব্যালেন্স অটো-রিসেট হয়ে যাবে।")) {
+                budgetHistory = budgetHistory.filter(item => item.id !== id);
+                localStorage.setItem('pocket_budget_history', JSON.stringify(budgetHistory));
+                buildMonthFilterDropdown();
+                calculateAndRenderWallet();
+            }
+        }
+    </script>
+</body>
+</html>

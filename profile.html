@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StudyBuddy Pro - Profile Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .card-dark {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 24px;
+            padding: 28px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            margin-top: 30px;
+            margin-bottom: 200px;
+        }
+
+        .card-dark::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(56, 189, 248, 0.15);
+            border-radius: 50%;
+            filter: blur(30px);
+            pointer-events: none;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #131A26;
+            border: 1px solid #202D42;
+            color: #38BDF8;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            transition: all 0.2s;
+        }
+        .back-btn:active { transform: scale(0.95); }
+
+        .logo-zone {
+            width: 64px;
+            height: 64px;
+            background-color: #1A2638;
+            color: #38BDF8;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto;
+            border: 2px solid #20304A;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .title-zone {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 24px;
+        }
+        .title-zone h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFF;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .step-badge {
+            font-size: 9px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38BDF8;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        .title-zone p {
+            font-size: 11px;
+            color: #64748B;
+            line-height: 1.6;
+            margin-top: 8px;
+            padding: 0 10px;
+        }
+                .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748B;
+            margin-bottom: 6px;
+            padding-left: 4px;
+            letter-spacing: 0.5px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #475569;
+            font-size: 13px;
+        }
+        .input-field {
+            width: 100%;
+            background-color: #090D14;
+            border: 1px solid #1E293B;
+            border-radius: 12px;
+            padding: 12px 12px 12px 40px;
+            font-size: 13px;
+            color: #FFF;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #38BDF8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-glow {
+            width: 100%;
+            background: linear-gradient(135deg, #38BDF8, #2563EB);
+            color: #080B11;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(56, 189, 248, 0.25);
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+        .btn-glow:active { transform: scale(0.97); }
+        
+        .hidden-mode { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="card-dark">
+        <a href="index.html" id="backHomeBtn" class="back-btn hidden-mode">
+            <i class="fa-solid fa-arrow-left"></i> Home
+        </a>
+
+        <div class="logo-zone" style="margin-top: 10px;">
+            <i class="fa-solid fa-user-astronaut"></i>
+        </div>
+        
+        <div class="title-zone">
+            <h3 id="pageTitle">Configure Profile <span class="step-badge" id="pageBadge">STEP 1</span></h3>
+            <p id="pageDesc">রুটিন, এক্সাম ট্র্যাকার এবং গ্লোবাল ভল্ট ব্যাংক অ্যাক্টিভ করতে তোমার সঠিক ডেটা দিয়ে প্রোফাইল ড্যাশবোর্ডটি সেটআপ করো।</p>
+        </div>
+        
+        <form id="profileForm" onsubmit="saveStudentProfile(event)">
+            <div class="input-group">
+                <label>Student Full Name</label>
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" id="studentName" required class="input-field" placeholder="Enter Your Name">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>College / Institution</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-school"></i>
+                    <input type="text" id="studentCollege" required class="input-field" placeholder="College Name">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Academic Group</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-atom"></i>
+                        <input type="text" id="studentGroup" required class="input-field" placeholder="e.g., Science">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Roll Number</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-list-ol"></i>
+                        <input type="number" id="studentRoll" required class="input-field" placeholder="Class Roll">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-glow">
+                Save Profile & Initialize <i class="fa-solid fa-arrow-right-long"></i>
+            </button>
+        </form>
+    </div>
+        <script>
+        window.onload = function() {
+            const isRegistered = localStorage.getItem('app_user_registered') === 'true';
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEditMode = urlParams.get('mode') === 'edit';
+
+            if (isRegistered && !isEditMode) {
+                window.location.href = "index.html";
+            } 
+            else if (isRegistered && isEditMode) {
+                document.getElementById('backHomeBtn').classList.remove('hidden-mode');
+                document.getElementById('pageTitle').innerHTML = 'Modify Profile <span class="step-badge" style="background:rgba(234,179,8,0.1); color:#EAB308; border-color:rgba(234,179,8,0.2)">EDIT</span>';
+                document.getElementById('pageDesc').innerText = 'তোমার প্রোফাইলের যেকোনো তথ্য এখান থেকে আপডেট করে নিতে পারো।';
+                document.getElementById('submitBtn').innerHTML = 'Update Profile <i class="fa-solid fa-circle-check"></i>';
+
+                document.getElementById('studentName').value = localStorage.getItem('profile_name') || '';
+                document.getElementById('studentCollege').value = localStorage.getItem('profile_institution') || '';
+                document.getElementById('studentGroup').value = localStorage.getItem('profile_group') || '';
+                document.getElementById('studentRoll').value = localStorage.getItem('profile_roll') || '';
+            }
+
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 200);
+                });
+            });
+        }
+
+        function saveStudentProfile(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('studentName').value.trim();
+            const college = document.getElementById('studentCollege').value.trim();
+            const group = document.getElementById('studentGroup').value.trim();
+            const roll = document.getElementById('studentRoll').value.trim();
+
+            if (!name || !college || !group || !roll) {
+                alert("দয়া করে সবগুলো ঘর সঠিকভাবে পূরণ করো!");
+                return;
+            }
+
+            localStorage.setItem('profile_name', name);
+            localStorage.setItem('profile_institution', college);
+            localStorage.setItem('profile_group', group);
+            localStorage.setItem('profile_roll', roll);
+            localStorage.setItem('app_user_registered', 'true');
+
+            if (!localStorage.getItem('global_vault_xp')) {
+                localStorage.setItem('global_vault_xp', '50');
+            }
+            if (!localStorage.getItem('study_time')) {
+                localStorage.setItem('study_time', '0');
+            }
+
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>

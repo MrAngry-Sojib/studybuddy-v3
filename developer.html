@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Info — StudyBuddy Mastermind</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #0D1520;
+            border-bottom: 1px solid #1E293B;
+            width: 100%;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #38BDF8;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .header h1 { font-size: 16px; font-weight: 800; color: #FFF; }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        /* সাইবারপাঙ্ক নিоন প্রোফাইল কার্ড */
+        .developer-card {
+            background: linear-gradient(145deg, #0D1520, #090D14);
+            border: 1px solid #1E293B;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 380px;
+            padding: 30px 24px 20px 24px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* গ্লোয়িং প্রোফাইল পিকচার ফ্রেম */
+        .avatar-wrapper {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 16px auto;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #38BDF8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+        .online-dot {
+            width: 14px;
+            height: 14px;
+            background-color: #10B981;
+            border: 3px solid #0D1520;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        .dev-name { font-size: 22px; font-weight: 900; color: #FFF; letter-spacing: 0.5px; }
+        .dev-tag { font-size: 11px; font-weight: 700; color: #38BDF8; text-transform: uppercase; margin-top: 4px; letter-spacing: 1px; }
+        .dev-bio { font-size: 12px; color: #94A3B8; margin-top: 14px; line-height: 1.6; padding: 0 6px; text-align: center; }
+                /* স্কিল ব্যাজ স্টাইল */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin: 18px 0;
+            padding-top: 14px;
+            border-top: 1px solid #1E293B;
+        }
+        .skill-badge {
+            background-color: #090D14;
+            border: 1px solid #1E293B;
+            color: #94A3B8;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .skill-badge i { color: #38BDF8; margin-right: 4px; }
+
+        /* ৫টি প্রিমিয়াম সোশ্যাল বাটন গ্রিড */
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 16px;
+            border-top: 1px solid #1E293B;
+            padding-top: 16px;
+        }
+        .social-btn {
+            background-color: #090D14;
+            border: 1px solid #1E293B;
+            color: #94A3B8;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .btn-facebook:hover { color: #1877F2; border-color: #1877F2; background-color: rgba(24, 119, 242, 0.05); box-shadow: 0 0 15px rgba(24, 119, 242, 0.2); }
+        .btn-whatsapp:hover { color: #25D366; border-color: #25D366; background-color: rgba(37, 211, 102, 0.05); box-shadow: 0 0 15px rgba(37, 211, 102, 0.2); }
+        .btn-instagram:hover { color: #E1306C; border-color: #E1306C; background-color: rgba(225, 48, 108, 0.05); box-shadow: 0 0 15px rgba(225, 48, 108, 0.2); }
+        .btn-github:hover { color: #FFF; border-color: #FFF; background-color: rgba(255, 255, 255, 0.05); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
+        .btn-email:hover { color: #EA4335; border-color: #EA4335; background-color: rgba(234, 67, 53, 0.05); box-shadow: 0 0 15px rgba(234, 67, 53, 0.2); }
+
+        /* কাস্টম রিকোয়েস্টেড ফুটার ক্রেডিট স্টাইল */
+        .custom-footer-credit {
+            margin-top: 24px;
+            border-top: 1px solid rgba(30, 41, 59, 0.6);
+            padding-top: 14px;
+            font-size: 10px;
+            color: #475569;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+        .custom-footer-credit b { color: #64748B; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button onclick="window.location.href='index.html'" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1>Developer Profile</h1>
+    </header>
+
+    <main class="container">
+        <div class="developer-card">
+            
+            <!-- প্রোফাইল পিকচার ফ্রেম -->
+            <div class="avatar-wrapper">
+                <img src="profile.jpg" alt="Sojib" class="avatar-img" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=sojib'">
+                <div class="online-dot"></div>
+            </div>
+
+            <!-- ডেভেলপার নাম ও কাস্টম অপশন ১ টেক্সট জোন -->
+            <h2 class="dev-name">Sojib Islam</h2>
+            <div class="dev-tag">Front-End Web Developer</div>
+            <p class="dev-bio">টেকনোলজি এবং কোডিংয়ের মাধ্যমে নতুন কিছু তৈরি করতে ভালোবাসি। স্টুডেন্টদের পড়াশোনা সহজ করার লক্ষ্যেই আমার এই 'StudyBuddy Pro' অ্যাপটি ডিজাইন ও ডেভেলপ করা।</p>
+
+            <!-- কারিগরি স্কিল ব্যাজসমূহ -->
+            <div class="skills-container">
+                <div class="skill-badge"><i class="fa-brands fa-html5"></i> HTML5</div>
+                <div class="skill-badge"><i class="fa-brands fa-css3-alt"></i> CSS3</div>
+                <div class="skill-badge"><i class="fa-brands fa-js"></i> JavaScript</div>
+                <div class="skill-badge"><i class="fa-solid fa-code-branch"></i> Git</div>
+                <div class="skill-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> UI/UX</div>
+            </div>
+
+            <!-- ৫টি সোশ্যাল মিডিয়া বাটন গ্রিড -->
+            <div class="social-grid">
+                <a href="https://facebook.com/MrAngry.sojib.523" target="_blank" class="social-btn btn-facebook" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://wa.me/8801645483478" target="_blank" class="social-btn btn-whatsapp" title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <a href="https://instagram.com/mr_angry_sojib" target="_blank" class="social-btn btn-instagram" title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://github.com/mrangry-sojib" target="_blank" class="social-btn btn-github" title="GitHub">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+                <a href="mailto:sojibmeia48@gmail.com" class="social-btn btn-email" title="Gmail">
+                    <i class="fa-regular fa-envelope"></i>
+                </a>
+            </div>
+
+            <!-- কাস্টম রিকোয়েস্টেড মেগা ফুটার ক্রেডিট -->
+            <div class="custom-footer-credit">
+                © 2026 StudyBuddy Pro. All Rights Reserved.<br>
+                Designed & Developed by <b>Sojib Islam</b>
+            </div>
+            
+        </div>
+    </main>
+        <script>
+        window.onload = function() {
+            console.log("StudyBuddy Developer Workspace Loaded. Managed by Sojib Islam.");
+        }
+    </script>
+</body>
+</html>

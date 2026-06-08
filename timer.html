@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy Pro - Deep Focus Engine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #080B11;
+            color: #E2E8F0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #0D1520;
+            border-bottom: 1px solid #1E293B;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .back-btn { background: none; border: none; color: #38BDF8; font-size: 16px; cursor: pointer; }
+        .header h1 { font-size: 16px; font-weight: 800; color: #FFF; }
+        
+        .container {
+            flex: 1;
+            max-width: 400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+        }
+
+        .live-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        .stat-box {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-box label { display: block; font-size: 9px; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 4px; }
+        .stat-box span { font-size: 15px; font-weight: 800; color: #FFF; }
+        .stat-box .highlight-blue { color: #38BDF8; }
+
+        /* নিয়ন সার্কেল টাইমার বডি */
+        .timer-circle-wrap {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(#0D1520, #090D14);
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 2px solid #1E293B;
+            margin-top: 10px;
+        }
+        .circle-focus-active { border-color: #38BDF8 !important; box-shadow: 0 0 30px rgba(56, 189, 248, 0.25); }
+        .circle-break-alert { border-color: #F59E0B !important; box-shadow: 0 0 30px rgba(245, 158, 11, 0.3); animation: alertPulse 1s infinite alternate; }
+        .circle-overtime-active { border-color: #A855F7 !important; box-shadow: 0 0 35px rgba(168, 85, 247, 0.35); }
+        
+        .time-display { font-size: 44px; font-weight: 900; color: #FFF; font-family: monospace; }
+        .text-focus { color: #38BDF8 !important; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+        .text-break { color: #F59E0B !important; text-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .text-overtime { color: #A855F7 !important; text-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
+        
+        .session-tag {
+            position: absolute;
+            bottom: 45px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #64748B;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background-color: rgba(30, 41, 59, 0.4);
+        }
+
+        @keyframes alertPulse { 0% { border-color: #1E293B; } 100% { border-color: #F59E0B; } }
+                .time-tuner-row { display: flex; align-items: center; gap: 14px; margin-top: -5px; }
+        .btn-tune {
+            background-color: #1A2638; border: 1px solid #20304A; color: #94A3B8;
+            width: 36px; height: 36px; border-radius: 50%; font-size: 14px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .controls-panel { display: flex; gap: 12px; width: 100%; justify-content: center; }
+        .btn-timer {
+            flex: 1; border: none; padding: 14px; border-radius: 12px; font-size: 11px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;
+        }
+        .btn-start { background: linear-gradient(135deg, #38BDF8, #2563EB); color: #080B11; box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2); }
+        .btn-pause { background-color: #1A2638; border: 1px solid #20304A; color: #EF4444; }
+        .btn-break { background: linear-gradient(135deg, #F59E0B, #D97706); color: #080B11; }
+        .btn-stop { background: linear-gradient(135deg, #A855F7, #7E22CE); color: #FFF; }
+
+        /* ওভারটাইম বোনাস ব্যানার ট্র্যাকার */
+        .overtime-banner {
+            background: rgba(168, 85, 247, 0.06);
+            border: 1px dashed rgba(168, 85, 247, 0.3);
+            border-radius: 14px;
+            padding: 12px;
+            width: 100%;
+            text-align: center;
+            display: none;
+        }
+        .overtime-banner h5 { font-size: 12px; color: #A855F7; font-weight: 800; text-transform: uppercase; }
+        .overtime-banner p { font-size: 10px; color: #94A3B8; margin-top: 4px; }
+
+        .reward-info-card { background-color: #0D1520; border: 1px solid #1E293B; border-radius: 16px; padding: 12px; width: 100%; display: flex; align-items: center; gap: 12px; }
+        .reward-icon { width: 36px; height: 36px; background-color: rgba(168, 85, 247, 0.1); color: #A855F7; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .reward-meta h4 { font-size: 11px; font-weight: 700; color: #FFF; }
+        .reward-meta p { font-size: 9px; color: #64748B; margin-top: 2px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <button onclick="navigateBackToHome()" class="back-btn"><i class="fa-solid fa-arrow-left"></i></button>
+        <h1>Focus Engine Pro</h1>
+    </header>
+
+    <main class="container">
+        
+        <div class="live-stats-grid">
+            <div class="stat-box">
+                <label>Today's Focus</label>
+                <span id="statToday">0m 0s</span>
+            </div>
+            <div class="stat-box">
+                <label>Lifetime Total</label>
+                <span id="statTotal" class="highlight-blue">0m</span>
+            </div>
+        </div>
+        
+        <div id="circleWrap" class="timer-circle-wrap">
+            <div id="timeDisplay" class="time-display">30:00</div>
+            <div id="sessionStatus" class="session-tag">Ready</div>
+        </div>
+
+        <div id="overtimeBanner" class="overtime-banner">
+            <h5>Deep Focus Overtime Active ⚡</h5>
+            <p>ব্রেক না নিয়ে এক্সট্রা পড়েছ: <b id="otTimeLabel" style="color:#FFF;">0m 0s</b> | বোনাস: <b id="otXpLabel" style="color:#A855F7;">+0 XP</b></p>
+        </div>
+
+        <div id="tunerRow" class="time-tuner-row">
+            <button class="btn-tune" onclick="tuneTimeTarget(-5)">-5m</button>
+            <span style="font-size: 10px; color:#64748B; font-weight:700; text-transform:uppercase;">Adjust Target</span>
+            <button class="btn-tune" onclick="tuneTimeTarget(5)">+5m</button>
+        </div>
+
+        <div class="controls-panel">
+            <button id="startBtn" class="btn-timer btn-start" onclick="startFocusTimer()">
+                Start Focus <i class="fa-solid fa-play"></i>
+            </button>
+            <button id="pauseBtn" class="btn-timer btn-pause" style="display: none;" onclick="pauseFocusTimer()">
+                Pause <i class="fa-solid fa-pause"></i>
+            </button>
+            <button id="startBreakBtn" class="btn-timer btn-break" style="display: none;" onclick="manuallyStartBreak()">
+                Start Break <i class="fa-solid fa-mug-hot"></i>
+            </button>
+            <button id="stopOvertimeBtn" class="btn-timer btn-stop" style="display: none;" onclick="stopOvertimeAndClaimRewards()">
+                Stop & Claim <i class="fa-solid fa-circle-check"></i>
+            </button>
+        </div>
+
+        <div class="reward-info-card">
+            <div class="reward-icon"><i class="fa-solid fa-crown"></i></div>
+            <div class="reward-meta">
+                <h4>Gamified Rules & Free Days 🛡️</h4>
+                <p>প্রতি ৩০ মিনিটে <b>+10 XP</b> ক্রেডিট হবে। ওভারটাইমে প্রতি ১০ মিনিটে <b>+5 XP</b> বোনাস! তবে অলসতা করলে -10 XP কাটা যাবে। অবশ্য <b>বৃহস্পতিবার ও শুক্রবার</b> কোনো এক্সপি কাটা হবে না!</p>
+            </div>
+        </div>
+
+    </main>
+        <script>
+        let timerInterval = null;
+        let isTimerRunning = false;
+        let currentMode = "FOCUS"; // FOCUS, BREAK_ALERT, OVERTIME
+        
+        let targetMinutes = 30; 
+        let timeRemaining = targetMinutes * 60;
+        
+        let alertCountdownSeconds = 60; 
+        let overtimeSecondsCounter = 0; 
+
+        window.onload = function() {
+            initializeDailyDataAndCheckPunishment();
+            updateLiveDashboardStats();
+            resetTimerUiToMode();
+            setupBackgroundSyncRecovery();
+        }
+
+        // [ইন্টেলিজেন্ট উইকএন্ড নো-পানিশমেন্ট ট্র্যাকার]
+        function initializeDailyDataAndCheckPunishment() {
+            const now = new Date();
+            const todayStr = now.toDateString();
+            const dayName = now.getDay(); // ০=রবিবার, ৪=বৃহস্পতিবার, ৫=শুক্রবার, ৬=শনিবার
+
+            if (localStorage.getItem('today_date_string') !== todayStr) {
+                if (localStorage.getItem('today_date_string')) {
+                    const yesterdaySecs = parseInt(localStorage.getItem('today_study_seconds')) || 0;
+                    
+                    // আজ যদি শুক্রবার (৫) বা শনিবার (৬) হয়, তার মানে গতকাল যথাক্রমে বৃহস্পতিবার বা শুক্রবার ছিল।
+                    const isYesterdayFriday = (dayName === 6); 
+                    const isYesterdayThursday = (dayName === 5);
+
+                    // বৃহস্পতিবার ও শুক্রবার বাদে বাকি দিনগুলোতে ৩০ মিনিটের কম পড়লে এক্সপি কাটা হবে
+                    if (yesterdaySecs < 30 * 60) {
+                        if (isYesterdayThursday || isYesterdayFriday) {
+                            // ছুটির দিন হওয়ায় কোনো অ্যাকশন বা শাস্তি হবে না
+                            console.log("গতকাল ছুটি/বৃহস্পতিবার ছিল। কোনো এক্সপি কাটা হয়নি।");
+                        } else {
+                            let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
+                            xp = Math.max(0, xp - 10); 
+                            localStorage.setItem('global_vault_xp', xp.toString());
+                            alert("⚠️ পানিশমেন্ট এলার্ট, সজিব!\n\nগতকাল তুমি মিনিмум ৩০ মিনিট পড়াশোনা করোনি। এই অবহেলার কারণে তোমার গ্লোবাল ব্যাংক থেকে ১০ এক্সপি (XP) কেটে নেওয়া হলো। (মনে রেখো: বৃহস্পতিবার ও শুক্রবার কোনো এক্সপি কাটা হয় না)।");
+                        }
+                    }
+                }
+                localStorage.setItem('today_date_string', todayStr);
+                localStorage.setItem('today_study_seconds', '0');
+            }
+        }
+
+        function updateLiveDashboardStats() {
+            const todaySecs = parseInt(localStorage.getItem('today_study_seconds')) || 0;
+            const tMin = Math.floor(todaySecs / 60);
+            const tSec = todaySecs % 60;
+            document.getElementById('statToday').innerText = `${tMin}m ${tSec}s`;
+
+            const totalSecs = parseInt(localStorage.getItem('lifetime_study_seconds')) || 0;
+            const totalMin = Math.floor(totalSecs / 60);
+            document.getElementById('statTotal').innerText = `${totalMin}m`;
+            localStorage.setItem('study_time', totalMin.toString());
+        }
+
+        function resetTimerUiToMode() {
+            if (currentMode === "OVERTIME") return;
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timeDisplay').innerText = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function tuneTimeTarget(amount) {
+            if (isTimerRunning || currentMode !== "FOCUS") return;
+            let newTarget = targetMinutes + amount;
+            if (newTarget < 30) { alert("মিনিমাম ৩০ মিনিট পড়তেই হবে, এর কম কমানো সম্ভব নয়!"); return; }
+            targetMinutes = newTarget;
+            timeRemaining = targetMinutes * 60;
+            resetTimerUiToMode();
+        }
+
+        function startFocusTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+
+            document.getElementById('startBtn').style.display = "none";
+            document.getElementById('tunerRow').style.visibility = "hidden";
+            document.getElementById('pauseBtn').style.display = "flex";
+
+            document.getElementById('circleWrap').className = "timer-circle-wrap circle-focus-active";
+            document.getElementById('timeDisplay').className = "time-display text-focus";
+            document.getElementById('sessionStatus').innerText = "Focusing";
+
+            timerInterval = setInterval(() => {
+                if (currentMode === "FOCUS") {
+                    timeRemaining--;
+                    runCoreStudyTickLog(1);
+                    resetTimerUiToMode();
+
+                    if (timeRemaining <= 0) {
+                        triggerBreakNotificationAlert();
+                    }
+                } 
+                else if (currentMode === "BREAK_ALERT") {
+                    alertCountdownSeconds--;
+                    document.getElementById('timeDisplay').innerText = `00:${alertCountdownSeconds.toString().padStart(2,'0')}`;
+                    
+                    if (alertCountdownSeconds <= 0) {
+                        triggerOvertimeFocusMode();
+                    }
+                } 
+                else if (currentMode === "OVERTIME") {
+                    overtimeSecondsCounter++;
+                    runCoreStudyTickLog(1); 
+                    
+                    const oMin = Math.floor(overtimeSecondsCounter / 60);
+                    const oSec = overtimeSecondsCounter % 60;
+                    document.getElementById('timeDisplay').innerText = `${oMin.toString().padStart(2,'0')}:${oSec.toString().padStart(2,'0')}`;
+                    
+                    document.getElementById('otTimeLabel').innerText = `${oMin}m ${oSec}s`;
+                    const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; // [আপডেট] প্রতি ১০ মিনিটে ৫ এক্সপি বোনাস
+                    document.getElementById('otXpLabel').innerText = `+${bonusXp} XP`;
+                }
+            }, 1000);
+        }
+
+        function runCoreStudyTickLog(seconds) {
+            let todaySecs = parseInt(localStorage.getItem('today_study_seconds')) || 0;
+            let totalSecs = parseInt(localStorage.getItem('lifetime_study_seconds')) || 0;
+            let cumulativeXpPool = parseInt(localStorage.getItem('cumulative_xp_pool_seconds')) || 0;
+            
+            todaySecs += seconds; totalSecs += seconds; cumulativeXpPool += seconds;
+            
+            localStorage.setItem('today_study_seconds', todaySecs.toString());
+            localStorage.setItem('lifetime_study_seconds', totalSecs.toString());
+            localStorage.setItem('cumulative_xp_pool_seconds', cumulativeXpPool.toString());
+
+            // [আপডেট] প্রতি ৩০ মিনিট পড়াশোনা পুলে জমা হলেই সলিড ১০ এক্সপি রিওয়ার্ড
+            if (cumulativeXpPool >= 30 * 60) {
+                let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
+                xp += 10; 
+                localStorage.setItem('global_vault_xp', xp.toString());
+                localStorage.setItem('cumulative_xp_pool_seconds', (cumulativeXpPool - 1800).toString());
+                alert("🎁 অসাধারণ পড়াশোনা, সজিব! ৩০ মিনিট পড়ার মাইলস্টোন ছুয়েছ। ভল্ট ব্যাংকে +10 XP ক্রেডিট করা হলো!");
+            }
+            updateLiveDashboardStats();
+        }
+
+        function triggerBreakNotificationAlert() {
+            currentMode = "BREAK_ALERT";
+            alertCountdownSeconds = 60;
+            
+            document.getElementById('pauseBtn').style.display = "none";
+            document.getElementById('startBreakBtn').style.display = "flex";
+
+            document.getElementById('circleWrap').className = "timer-circle-wrap circle-break-alert";
+            document.getElementById('timeDisplay').className = "time-display text-break";
+            document.getElementById('sessionStatus').innerText = "Break?";
+            
+            if(navigator.vibrate) navigator.vibrate();
+        }
+
+        function manuallyStartBreak() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            currentMode = "FOCUS";
+            timeRemaining = 5 * 60; 
+            
+            document.getElementById('startBreakBtn').style.display = "none";
+            document.getElementById('startBtn').innerHTML = 'Finish Break <i class="fa-solid fa-mug-hot"></i>';
+            document.getElementById('startBtn').style.display = "flex";
+            
+            document.getElementById('circleWrap').className = "timer-circle-wrap";
+            document.getElementById('timeDisplay').className = "time-display";
+            document.getElementById('sessionStatus').innerText = "In Break";
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timeDisplay').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function triggerOvertimeFocusMode() {
+            currentMode = "OVERTIME";
+            overtimeSecondsCounter = 0;
+            
+            document.getElementById('startBreakBtn').style.display = "none";
+            document.getElementById('stopOvertimeBtn').style.display = "flex";
+
+            document.getElementById('circleWrap').className = "timer-circle-wrap circle-overtime-active";
+            document.getElementById('timeDisplay').className = "time-display text-overtime";
+            document.getElementById('sessionStatus').innerText = "Deep Focus";
+            document.getElementById('overtimeBanner').style.display = "block";
+        }
+
+        function stopOvertimeAndClaimRewards() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            
+            const bonusXp = Math.floor(overtimeSecondsCounter / 600) * 5; // ১০ মিনিটে ৫ এক্সপি বোনাস
+            if (bonusXp > 0) {
+                let xp = parseInt(localStorage.getItem('global_vault_xp')) || 0;
+                xp += bonusXp;
+                localStorage.setItem('global_vault_xp', xp.toString());
+            }
+
+            const totalOtMins = Math.floor(overtimeSecondsCounter / 60);
+            alert(`🔥 মেগা সাকসেস সজিব!\n\nতুমি ব্রেক না নিয়ে অতিরিক্ত ${totalOtMins} মিনিট গভীর পড়াশোনা করেছ।\n🎁 পুরস্কার হিসেবে ভল্ট ব্যাংকে অতিরিক্ত +${bonusXp} XP বোনাস দেওয়া হলো!`);
+            
+            currentMode = "FOCUS";
+            targetMinutes = 30;
+            timeRemaining = targetMinutes * 60;
+            overtimeSecondsCounter = 0;
+            
+            document.getElementById('stopOvertimeBtn').style.display = "none";
+            document.getElementById('overtimeBanner').style.display = "none";
+            document.getElementById('startBtn').innerHTML = 'Start Focus <i class="fa-solid fa-play"></i>';
+            document.getElementById('startBtn').style.display = "flex";
+            document.getElementById('tunerRow').style.visibility = "visible";
+            
+            resetTimerUiToMode();
+            updateLiveDashboardStats();
+        }
+
+        function pauseFocusTimer() {
+            if (!isTimerRunning) return;
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+
+            document.getElementById('circleWrap').className = "timer-circle-wrap";
+            document.getElementById('timeDisplay').className = "time-display";
+            document.getElementById('sessionStatus').innerText = "Paused";
+
+            document.getElementById('startBtn').innerHTML = 'Resume Focus <i class="fa-solid fa-play"></i>';
+            document.getElementById('startBtn').style.display = "flex";
+            document.getElementById('pauseBtn').style.display = "none";
+        }
+
+        function setupBackgroundSyncRecovery() {
+            document.addEventListener("visibilitychange", function() {
+                if (document.visibilityState === "visible" && isTimerRunning) {
+                    if (localStorage.getItem('timer_background_exit_timestamp')) {
+                        const exitTime = parseInt(localStorage.getItem('timer_background_exit_timestamp'));
+                        const secondsLost = Math.floor((Date.now() - exitTime) / 1000);
+
+                        if (secondsLost > 0) {
+                            if (currentMode === "FOCUS") {
+                                timeRemaining -= secondsLost;
+                                runCoreStudyTickLog(secondsLost);
+                                if (timeRemaining <= 0) triggerBreakNotificationAlert();
+                            } else if (currentMode === "OVERTIME") {
+                                overtimeSecondsCounter += secondsLost;
+                                runCoreStudyTickLog(secondsLost);
+                            }
+                        }
+                    }
+                    localStorage.removeItem('timer_background_exit_timestamp');
+                } else if (document.visibilityState === "hidden" && isTimerRunning) {
+                    localStorage.setItem('timer_background_exit_timestamp', Date.now().toString());
+                }
+            });
+        }
+
+        function navigateBackToHome() {
+            if (isTimerRunning) {
+                if (confirm("টাইমার চলছে! ফিরে গেলে প্রোগ্রেস পজ হবে। হোমে যাবে?")) {
+                    clearInterval(timerInterval);
+                    localStorage.removeItem('timer_background_exit_timestamp');
+                    window.location.href = "index.html";
+                }
+            } else { window.location.href = "index.html"; }
+        }
+    </script>
+</body>
+</html>
