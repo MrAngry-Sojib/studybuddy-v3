@@ -1,9 +1,10 @@
-const CACHE_NAME = 'studybuddy-v3'; // ভার্সন বাড়িয়ে v3 করা হলো যেন সবার ফোনে দ্রুত আপডেট নেয়
+const CACHE_NAME = 'studybuddy-v4'; // ভার্সন বাড়িয়ে v3 করা হলো যেন সবার ফোনে দ্রুত আপডেট নেয়
 
 // স্ক্রিনশট অনুযায়ী তোমার সব ফাইলের নিখুঁত লিস্ট (অ্যাসেট) এখানে লক করা হলো
 const ASSETS = [
   '/',
   'index.html',
+  'help.html',
   'routine.html',
   'exam.html',
   'notes.html',
