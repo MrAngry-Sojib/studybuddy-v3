@@ -65,7 +65,7 @@
             text-align: center;
             vertical-align: middle;
             padding: 10px;
-            height: 85px; /* একটু হাইট বাড়ানো হলো যেন ৩টি লাইন সুন্দরভাবে ফিট হয় */
+            height: 85px;
             overflow: hidden;
         }
         th {
@@ -91,7 +91,6 @@
             width: 90px;
         }
 
-        /* স্ক্রিনশটের মতো ক্লিন ৩-লাইন টেক্সট লেআউট */
         .subject-txt {
             display: block;
             font-size: 13px;
@@ -152,7 +151,7 @@
             100% { border-color: #38BDF8; box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.2), 0 0 10px rgba(56, 189, 248, 0.1); }
         }
         @keyframes blinkDot { 0% { opacity: 0.3; } 100% { opacity: 1; } }
-                .floating-settings {
+        .floating-settings {
             position: fixed;
             bottom: 24px;
             right: 24px;
@@ -246,6 +245,63 @@
         }
         .btn-secondary { background: #1A2638; border: 1px solid #20304A; color: #94A3B8; }
         .btn-danger { background-color: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
+
+        /* কাস্টম নোটিফিকেশন টোস্ট ও কনফার্ম বক্স ডিজাইন */
+        .custom-toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-40px);
+            background-color: #0D1520;
+            border: 1px solid #ef4444;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            max-width: 90%;
+        }
+        .custom-toast.toast-success { border-color: #10b981; }
+        .custom-toast.toast-active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .custom-toast i { font-size: 16px; }
+        .custom-toast .toast-msg { font-size: 12px; font-weight: 600; color: #E2E8F0; line-height: 1.4; }
+
+        .confirm-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(8, 11, 17, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .confirm-card {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 320px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+        .confirm-backdrop.confirm-active { opacity: 1; pointer-events: auto; }
+        .confirm-backdrop.confirm-active .confirm-card { transform: scale(1); }
+        .confirm-icon { font-size: 28px; color: #f59e0b; margin-bottom: 12px; }
+        .confirm-text { font-size: 13px; font-weight: 600; color: #E2E8F0; margin-bottom: 18px; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -266,7 +322,6 @@
             </table>
         </div>
     </main>
-
     <button class="floating-settings" onclick="openSettingsPopup()"><i class="fa-solid fa-gear"></i></button>
 
     <div id="settingsPopup" class="popup-backdrop">
@@ -333,7 +388,6 @@
 
                 <div class="input-group">
                     <label>Room Number Only</label>
-                    <!-- কাস্টম প্লেসহোল্ডার ইউজার শুধু সংখ্যা দিবে -->
                     <input type="text" id="formRoom" required class="input-field" placeholder="যেমন: 1001, 1020">
                 </div>
 
@@ -341,6 +395,23 @@
             </form>
             
             <button type="button" class="btn-action btn-danger" style="margin-top:8px;" onclick="clearFullRoutineData()">Clear All Data</button>
+        </div>
+    </div>
+
+    <!-- কাস্টম ডায়নামিক অ্যালার্ট এবং কনফার্ম বক্সের ডম এলিমেন্ট -->
+    <div id="customToast" class="custom-toast">
+        <i id="toastIcon" class="fa-solid"></i>
+        <span id="toastMessage" class="toast-msg"></span>
+    </div>
+
+    <div id="customConfirm" class="confirm-backdrop">
+        <div class="confirm-card">
+            <i class="fa-solid fa-triangle-exclamation confirm-icon"></i>
+            <p id="confirmMessage" class="confirm-text"></p>
+            <div class="grid-2">
+                <button id="confirmCancelBtn" class="btn-action btn-secondary" style="margin-top:0; padding:8px;">না</button>
+                <button id="confirmSuccessBtn" class="btn-action" style="margin-top:0; padding:8px; background: #ef4444; color: #FFF;">হ্যাঁ</button>
+            </div>
         </div>
     </div>
         <script>
@@ -368,7 +439,51 @@
         function openSettingsPopup() { document.getElementById('settingsPopup').classList.add('popup-active'); }
         function closeSettingsPopup() { document.getElementById('settingsPopup').classList.remove('popup-active'); }
 
-        // ২৪ ঘণ্টাকে ১২ ঘণ্টা রূপান্তরের কোর ইঞ্জিন
+        // কাস্টম ডায়নামিক টোস্ট ইঞ্জিন (কোনো ব্রাউজার অ্যালার্ট বা ওপরে লেখা থাকবে না)
+        function showCustomToast(message, type = 'error') {
+            const toast = document.getElementById('customToast');
+            const icon = document.getElementById('toastIcon');
+            const msgSpan = document.getElementById('toastMessage');
+
+            msgSpan.innerText = message;
+            toast.className = 'custom-toast'; 
+
+            if(type === 'success') {
+                toast.classList.add('toast-success');
+                icon.className = 'fa-solid fa-circle-check';
+                icon.style.color = '#10b981';
+            } else {
+                icon.className = 'fa-solid fa-circle-exclamation';
+                icon.style.color = '#ef4444';
+            }
+
+            toast.classList.add('toast-active');
+            setTimeout(() => {
+                toast.classList.remove('toast-active');
+            }, 3000);
+        }
+
+        // কাস্টম ডায়নামিক কনফার্ম বক্স ইঞ্জিন
+        function showCustomConfirm(message, callback) {
+            const backdrop = document.getElementById('customConfirm');
+            const msgPara = document.getElementById('confirmMessage');
+            const yesBtn = document.getElementById('confirmSuccessBtn');
+            const noBtn = document.getElementById('confirmCancelBtn');
+
+            msgPara.innerText = message;
+            backdrop.classList.add('confirm-active');
+
+            yesBtn.onclick = function() {
+                backdrop.classList.remove('confirm-active');
+                callback(true);
+            };
+
+            noBtn.onclick = function() {
+                backdrop.classList.remove('confirm-active');
+                callback(false);
+            };
+        }
+
         function convertTo12HourFormat(time24) {
             if (!time24) return "--:--";
             let [hours, minutes] = time24.split(':');
@@ -426,24 +541,28 @@
             const pKeys = Object.keys(config).sort((a,b) => parseInt(a.substring(1)) - parseInt(b.substring(1)));
             
             if (pKeys.length <= 6) {
-                alert("ডিফল্ট ৬টি পিরিয়ড ডিলিট করা যাবে না!");
+                showCustomToast("ডিফল্ট ৬টি পিরিয়ড ডিলিট করা যাবে না!");
                 return;
             }
 
             const lastKey = pKeys[pKeys.length - 1];
-            if(confirm(`তুমি কি নিশ্চিতভাবে শেষ স্লট (${config[lastKey].name}) ডিলিট করতে চাও?`)) {
-                delete config[lastKey];
-                localStorage.setItem('routine_periods_count_config', JSON.stringify(config));
+            
+            showCustomConfirm(`তুমি কি নিশ্চিতভাবে শেষ স্লট (${config[lastKey].name}) ডিলিট করতে চাও?`, function(confirmed) {
+                if(confirmed) {
+                    delete config[lastKey];
+                    localStorage.setItem('routine_periods_count_config', JSON.stringify(config));
 
-                const gridData = JSON.parse(localStorage.getItem('grid_master_routine_data')) || {};
-                workDays.forEach(day => { delete gridData[`${day}_${lastKey}`]; });
-                localStorage.setItem('grid_master_routine_data', JSON.stringify(gridData));
+                    const gridData = JSON.parse(localStorage.getItem('grid_master_routine_data')) || {};
+                    workDays.forEach(day => { delete gridData[`${day}_${lastKey}`]; });
+                    localStorage.setItem('grid_master_routine_data', JSON.stringify(gridData));
 
-                buildDropdownSelectors();
-                loadPeriodTimeSetup();
-                renderMasterGridTable();
-                syncWithOldHomeEngineFormat();
-            }
+                    buildDropdownSelectors();
+                    loadPeriodTimeSetup();
+                    renderMasterGridTable();
+                    syncWithOldHomeEngineFormat();
+                    showCustomToast("স্লটটি সফলভাবে ডিলিট হয়েছে।", "success");
+                }
+            });
         }
 
         function savePeriodTimeConfig() {
@@ -456,7 +575,7 @@
             buildDropdownSelectors();
             renderMasterGridTable();
             syncWithOldHomeEngineFormat();
-            alert("পিরিয়ডের সময় সফলভাবে সেভ হয়েছে!");
+            showCustomToast("精度 পিরিয়ডের সময় সফলভাবে সেভ হয়েছে!", "success");
         }
 
         function saveSubjectToGridRange(event) {
@@ -467,7 +586,6 @@
             const endP = document.getElementById('formEndPeriod').value;
             const subject = document.getElementById('formSubject').value.trim();
             
-            // [ইউজার ফ্রেন্ডলি ফিক্স] ইনপুটে যদি ইউজার ভুল করে নিজেই "Room no:" লিখে ফেলে, তা ফিল্টার করে শুধু মেইন ভ্যালু নেওয়া হবে
             let roomInput = document.getElementById('formRoom').value.trim();
             let cleanRoom = roomInput.replace(/^room\s*no\s*[:\- ]*/i, ''); 
 
@@ -475,14 +593,14 @@
             const endIndex = parseInt(endP.substring(1));
 
             if(startIndex > endIndex) {
-                alert("ভুল রেঞ্জ! শুরুর পিরিয়ড অবশ্যই শেষ পিরিয়ডের আগে বা সমান হতে হবে।");
+                showCustomToast("ভুল রেঞ্জ! শুরুর পিরিয়ড অবশ্যই শেষ পিরিয়ডের আগে বা সমান হতে হবে।");
                 return;
             }
             const gridData = JSON.parse(localStorage.getItem('grid_master_routine_data')) || {};
             
             for(let i = startIndex; i <= endIndex; i++) {
                 if(gridData[`${day}_p${i}`]) {
-                    alert(`ঝামেলা হয়েছে! p${i} পিরিয়ড অলরেডি অন্য সাবজেক্ট দিয়ে লকড আছে।`);
+                    showCustomToast(`ঝামেলা হয়েছে! p${i} পিরিয়ড অলরেডি অন্য সাবজেক্ট দিয়ে লকড আছে।`);
                     return;
                 }
             }
@@ -504,9 +622,9 @@
             
             document.getElementById('formSubject').value = '';
             document.getElementById('formRoom').value = '';
+            showCustomToast("রুটিন সফলভাবে আপডেট করা হয়েছে!", "success");
         }
 
-        // [মাস্টার ইউআই রেন্ডারার ইঞ্জিন - স্ক্রিনশট ১0000৫৭২৯৯.jpg লজিক অনুযায়ী ফিক্সড]
         function renderMasterGridTable() {
             const config = JSON.parse(localStorage.getItem('routine_periods_count_config')) || defaultPeriodsConfig;
             const gridData = JSON.parse(localStorage.getItem('grid_master_routine_data')) || {};
@@ -554,13 +672,9 @@
                     if (cell && cell.isMaster) {
                         if (isRunning) rowHtml += `<span class="live-tag"><span class="live-dot"></span>Live</span>`;
                         
-                        // লাইন ১: সাবজেক্ট টেক্সট
                         rowHtml += `<span class="subject-txt">${cell.subject}</span>`;
-                        
-                        // লাইন ২: ফিক্সড "Room no: " স্ট্রাকচার
                         rowHtml += `<span class="room-txt">Room no: ${cell.room}</span>`;
                         
-                        // লাইন ৩: আলাদা লাইনে সুন্দর ক্লাস টাইম কাউন্টার রেঞ্জ
                         const formattedRange = `${convertTo12HourFormat(config[cell.startKey].start)} - ${convertTo12HourFormat(config[cell.endKey].end)}`;
                         rowHtml += `<span class="time-txt-row">${formattedRange}</span>`;
                     } else if (!cell) {
@@ -602,12 +716,15 @@
         }
 
         function clearFullRoutineData() {
-            if(confirm("তুমি কি নিশ্চিতভাবে পুরো রুটিন ডেটা একদম রিসেট করতে চাও?")) {
-                localStorage.removeItem('grid_master_routine_data');
-                localStorage.removeItem('student_routine');
-                renderMasterGridTable();
-                closeSettingsPopup();
-            }
+            showCustomConfirm("তুমি কি নিশ্চিতভাবে পুরো রুটিন ডেটা একদম রিসেট করতে চাও?", function(confirmed) {
+                if(confirmed) {
+                    localStorage.removeItem('grid_master_routine_data');
+                    localStorage.removeItem('student_routine');
+                    renderMasterGridTable();
+                    closeSettingsPopup();
+                    showCustomToast("পুরো রুটিন ডেটা রিসেট করা হয়েছে!", "success");
+                }
+            });
         }
     </script>
 </body>
