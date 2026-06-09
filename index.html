@@ -562,21 +562,36 @@
         };
     </script>
     <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(reg => {
-        // এখানে অটো-আপডেট চেক হবে
-        reg.onupdatefound = () => {
-          const installingWorker = reg.installing;
-          installingWorker.onstatechange = () => {
-            if (installingWorker.state === 'installed') {
-              console.log('নতুন আপডেট পাওয়া গেছে! অ্যাপ রিলোড দাও.');
-              window.location.reload(); 
-            }
-          };
-        };
+  // সার্ভিস ওয়ার্কার রেজিস্ট্রেশন এবং অটো-আপডেট কোড
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(reg => {
+      console.log('Service Worker Registered!');
+
+      // যদি ব্যাকগ্রাউন্ডে নতুন কোনো আপডেট (যেমন v4) এসে অপেক্ষা করে
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // নতুন আপডেট রেডি! ইউজারকে কোনো পপ-আপ না দেখিয়ে অ্যাপটি অটো-রিলোড হবে
+            console.log('New update available! Auto reloading...');
+            window.location.reload();
+          }
+        });
       });
-  }
+    })
+    .catch(err => console.log('Service Worker Error:', err));
+
+  // কন্ট্রোলার চেঞ্জ হলে পেজ রিলোড করার সেফটি মেকানিজম
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+}
+        
     </script>
     
 </body>
