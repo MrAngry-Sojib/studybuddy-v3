@@ -40,7 +40,6 @@
             padding: 16px;
         }
 
-        /* সার্চ ইঞ্জিন বার */
         .search-wrapper {
             position: relative;
             margin-bottom: 16px;
@@ -65,7 +64,6 @@
         }
         .search-input:focus { border-color: #38BDF8; }
 
-        /* ডাইনামিক স্টাডি নোট কার্ড */
         .note-card {
             background: linear-gradient(135deg, #0D1520, #131A26);
             border-radius: 16px;
@@ -73,7 +71,6 @@
             margin-bottom: 12px;
             position: relative;
             border: 1px solid #1E293B;
-            /* কাস্টম সাবজেক্টের জন্য নিয়ন লেফট বর্ডার */
             border-left: 4px solid #38BDF8;
             transition: transform 0.2s;
         }
@@ -101,7 +98,6 @@
             white-space: pre-wrap;
         }
         
-        /* লকড মোড টেক্সট মাস্ক */
         .locked-mask-zone {
             background-color: rgba(9, 13, 20, 0.6);
             border-radius: 8px;
@@ -132,7 +128,6 @@
             color: #38BDF8;
             font-weight: 700;
         }
-                /* ফ্লোটিং অ্যাড বাটন */
         .floating-add {
             position: fixed; bottom: 24px; right: 24px; width: 50px; height: 50px;
             background: linear-gradient(135deg, #38BDF8, #2563EB); color: #080B11;
@@ -140,7 +135,6 @@
             font-size: 20px; cursor: pointer; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.35); border: none; z-index: 90;
         }
 
-        /* পপ-আপ মড্যুল */
         .popup-backdrop {
             position: fixed; inset: 0; background-color: rgba(8, 11, 17, 0.9);
             backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center;
@@ -158,13 +152,37 @@
         .input-field { width: 100%; background-color: #090D14; border: 1px solid #1E293B; border-radius: 8px; padding: 10px; font-size: 12px; color: #FFF; outline: none; }
         .input-field:focus { border-color: #38BDF8; }
 
-        /* লক টগল বাটন ডিজাইন */
         .lock-checkbox-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; background: #090D14; padding: 8px; border-radius: 8px; border: 1px solid #1E293B; }
         .lock-checkbox-row label { font-size: 11px; font-weight: 700; color: #94A3B8; cursor: pointer; }
         .lock-checkbox-row input { cursor: pointer; width: 14px; height: 14px; accent-color: #EF4444; }
 
         .btn-save { width: 100%; background: linear-gradient(135deg, #38BDF8, #2563EB); color: #080B11; border: none; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700; text-transform: uppercase; cursor: pointer; margin-top: 6px; }
         .no-data { text-align: center; font-size: 11px; color: #64748B; padding: 30px; border: 1px dashed #1E293B; border-radius: 16px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        /* কাস্টম টোস্ট, কনফার্ম ও সিকিউর প্রম্পট সিএসএস */
+        .custom-toast {
+            position: fixed; top: 24px; left: 50%; transform: translateX(-50%) translateY(-40px);
+            background-color: #0D1520; border: 1px solid #ef4444; padding: 12px 20px; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 10px; min-width: 280px; max-width: 90%;
+        }
+        .custom-toast.toast-success { border-color: #10b981; }
+        .custom-toast.toast-active { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .custom-toast .toast-msg { font-size: 12px; font-weight: 600; color: #E2E8F0; line-height: 1.4; }
+
+        .confirm-backdrop {
+            position: fixed; inset: 0; background-color: rgba(8, 11, 17, 0.85); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .confirm-card {
+            background-color: #0D1520; border: 1px solid #1E293B; border-radius: 20px; padding: 20px;
+            width: 100%; max-width: 320px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); transform: scale(0.9); transition: transform 0.3s ease; text-align: center;
+        }
+        .confirm-backdrop.confirm-active { opacity: 1; pointer-events: auto; }
+        .confirm-backdrop.confirm-active .confirm-card { transform: scale(1); }
+        .confirm-icon { font-size: 28px; color: #f59e0b; margin-bottom: 12px; }
+        .confirm-text { font-size: 13px; font-weight: 600; color: #E2E8F0; margin-bottom: 18px; line-height: 1.5; }
     </style>
 </head>
 <body>
@@ -180,8 +198,7 @@
             <input type="text" id="noteSearchInput" class="search-input" placeholder="নোটের শিরোনাম, বিষয় বা সাবজেক্ট দিয়ে সার্চ করো..." oninput="renderNotesVaultList()">
         </div>
 
-        <div id="notesListContainer">
-            </div>
+        <div id="notesListContainer"></div>
     </main>
 
     <button class="floating-add" onclick="openNotePopup()"><i class="fa-solid fa-pen-nib"></i></button>
@@ -219,13 +236,112 @@
             </form>
         </div>
     </div>
-            <script>
-        // প্রোফাইল পেজ থেকে রোল নম্বর পাসওয়ার্ড হিসেবে তুলে আনা
+
+    <div id="customToast" class="custom-toast">
+        <i id="toastIcon" class="fa-solid"></i>
+        <span id="toastMessage" class="toast-msg"></span>
+    </div>
+
+    <div id="customConfirm" class="confirm-backdrop">
+        <div class="confirm-card">
+            <i class="fa-solid fa-trash-can confirm-icon" style="color:#ef4444;"></i>
+            <p id="confirmMessage" class="confirm-text"></p>
+            <div class="grid-2">
+                <button id="confirmCancelBtn" class="btn-save btn-secondary" style="margin-top:0; padding:8px; background: #1E293B; border: 1px solid #334155; color: #94A3B8;">না</button>
+                <button id="confirmSuccessBtn" class="btn-save" style="margin-top:0; padding:8px; background: #ef4444; color: #FFF;">হ্যাঁ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="promptPopup" class="confirm-backdrop">
+        <div class="confirm-card" style="max-width: 340px; text-align: left;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; color:#38BDF8;">
+                <i class="fa-solid fa-user-shield" style="font-size:20px;"></i>
+                <h4 style="font-size:14px; font-weight:800; color:#FFF;">সিক্রেট ভল্ট প্রটেকশন</h4>
+            </div>
+            <p style="font-size: 11px; color:#94A3B8; margin-bottom:12px; line-height:1.5;">নোটের সুরক্ষিত তথ্যটি দেখতে তোমার প্রোফাইলের ক্লাস রোল নম্বরটি প্রবেশ করাও:</p>
+            <div class="input-group">
+                <input type="password" id="promptRollInput" class="input-field" placeholder="রোল নম্বর লেখো" style="text-align: center; letter-spacing: 2px;">
+            </div>
+            <div class="grid-2" style="margin-top:14px;">
+                <button id="promptCancelBtn" class="btn-save btn-secondary" style="margin-top:0; padding:10px; background: #1E293B; border: 1px solid #334155; color: #94A3B8;">বাতিল</button>
+                <button id="promptSuccessBtn" class="btn-save" style="margin-top:0; padding:10px;">আনলক করো</button>
+            </div>
+        </div>
+    </div>
+        <script>
         const userRollPassword = localStorage.getItem('profile_roll') || "123";
         let unlockedNotesCache = {};
+        let activeCallback = null;
 
         window.onload = function() {
             renderNotesVaultList();
+        }
+
+        // ডায়নামিক টোস্ট ইঞ্জিন
+        function showCustomToast(message, type = 'error') {
+            const toast = document.getElementById('customToast');
+            const icon = document.getElementById('toastIcon');
+            const msgSpan = document.getElementById('toastMessage');
+
+            msgSpan.innerText = message;
+            toast.className = 'custom-toast'; 
+
+            if(type === 'success') {
+                toast.classList.add('toast-success');
+                icon.className = 'fa-solid fa-circle-check';
+                icon.style.color = '#10b981';
+            } else {
+                icon.className = 'fa-solid fa-circle-exclamation';
+                icon.style.color = '#ef4444';
+            }
+
+            toast.classList.add('toast-active');
+            setTimeout(() => {
+                toast.classList.remove('toast-active');
+            }, 3000);
+        }
+
+        // ডায়নামিক কনফার্ম বক্স ইঞ্জিন
+        function showCustomConfirm(message, callback) {
+            const backdrop = document.getElementById('customConfirm');
+            const msgPara = document.getElementById('confirmMessage');
+            const yesBtn = document.getElementById('confirmSuccessBtn');
+            const noBtn = document.getElementById('confirmCancelBtn');
+
+            msgPara.innerText = message;
+            backdrop.classList.add('confirm-active');
+
+            yesBtn.onclick = function() {
+                backdrop.classList.remove('confirm-active');
+                callback(true);
+            };
+            noBtn.onclick = function() {
+                backdrop.classList.remove('confirm-active');
+                callback(false);
+            };
+        }
+
+        // কাস্টম ডায়নামিক প্রোম্পট বক্স (রোল পাসওয়ার্ড ইনপুটের জন্য বিশেষ মেকানিজম)
+        function showCustomPrompt(callback) {
+            const backdrop = document.getElementById('promptPopup');
+            const inputField = document.getElementById('promptRollInput');
+            const yesBtn = document.getElementById('promptSuccessBtn');
+            const noBtn = document.getElementById('promptCancelBtn');
+
+            inputField.value = '';
+            backdrop.classList.add('confirm-active');
+            inputField.focus();
+
+            yesBtn.onclick = function() {
+                const val = inputField.value.trim();
+                backdrop.classList.remove('confirm-active');
+                callback(val);
+            };
+            noBtn.onclick = function() {
+                backdrop.classList.remove('confirm-active');
+                callback(null);
+            };
         }
 
         function openNotePopup() { document.getElementById('notePopup').classList.add('popup-active'); }
@@ -240,14 +356,12 @@
             document.getElementById('ntIsLocked').checked = false;
         }
 
-        // রিড টাইম ক্যালকুলেটর
         function calculateReadTime(text) {
             const words = text.trim().split(/\s+/).length;
             const time = Math.ceil(words / 200);
             return `${time} min read`;
         }
 
-        // মাস্টার নোটপ্যাড রেন্ডার এবং সার্চ ফিল্টারিং ইঞ্জিন (বাগ ফিক্সড)
         function renderNotesVaultList() {
             const notesList = JSON.parse(localStorage.getItem('student_vault_notes')) || [];
             const container = document.getElementById('notesListContainer');
@@ -259,7 +373,6 @@
                 return;
             }
 
-            // সর্টিং লজিক (পিন করা নোট সবার উপরে থাকবে, বাকিগুলো নতুন থেকে পুরনো ডেট ওয়াইজ সাজানো)
             notesList.sort((a, b) => {
                 if (a.isPinned && !b.isPinned) return -1;
                 if (!a.isPinned && b.isPinned) return 1;
@@ -269,7 +382,6 @@
             let renderedCount = 0;
 
             notesList.forEach((note) => {
-                // সার্চ কি-ওয়ার্ড ম্যাচিং লজিক
                 if (searchKey && !note.title.toLowerCase().includes(searchKey) && !note.content.toLowerCase().includes(searchKey) && !note.category.toLowerCase().includes(searchKey)) {
                     return; 
                 }
@@ -277,8 +389,6 @@
                 renderedCount++;
                 const isLocked = note.isLocked && !unlockedNotesCache[note.timestamp];
                 const readTimeStr = calculateReadTime(note.content);
-                
-                // ইনডেক্স এরর এড়াতে ইউনিক টাইমস্ট্যাম্পকে আইডি হিসেবে পাস করা হচ্ছে
                 const noteId = note.timestamp; 
 
                 let cardHtml = `
@@ -325,20 +435,20 @@
             }
         }
 
-        function attemptUnlockNote(noteId) {
-            const inputPass = prompt("🔐 সিক্রেট ভল্ট প্রটেকশন:\n\nনোটের লেখাটি দেখতে তোমার প্রোফাইলের ক্লাস রোল নম্বরটি প্রবেশ করাও:");
-            if (inputPass === null) return false;
-            if (inputPass === userRollPassword) {
-                unlockedNotesCache[noteId] = true;
-                renderNotesVaultList();
-                return true;
-            } else {
-                alert("❌ ভুল রোল নম্বর! পাসওয়ার্ড মিলেনি।");
-                return false;
-            }
+        function attemptUnlockNote(noteId, successCallback = null) {
+            showCustomPrompt(function(inputPass) {
+                if (inputPass === null) return;
+                if (inputPass === userRollPassword) {
+                    unlockedNotesCache[noteId] = true;
+                    renderNotesVaultList();
+                    showCustomToast("নোটটি সফলভাবে আনলক হয়েছে!", "success");
+                    if(successCallback) successCallback();
+                } else {
+                    showCustomToast("❌ ভুল রোল নম্বর! পাসওয়ার্ড মিলেনি।", "error");
+                }
+            });
         }
 
-        // নোট সেভ এবং এডিট আপডেট মেকানিজম
         function saveOrUpdateVaultNote(event) {
             event.preventDefault();
 
@@ -353,18 +463,18 @@
             const dateLabel = `${now.getDate().toString().padStart(2,'0')}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getFullYear()}`;
 
             if (editIndex === -1) {
-                // নতুন নোট অ্যাড
                 notesList.push({
                     category, title, content, isLocked, isPinned: false,
                     timestamp: now.toISOString(), dateLabel
                 });
+                showCustomToast("নতুন নোট সফলভাবে ভল্টে লক করা হয়েছে!", "success");
             } else {
-                // নির্দিষ্ট ইনডেক্সে পুরনো নোট আপডেট
                 const existing = notesList[editIndex];
                 notesList[editIndex] = {
                     category, title, content, isLocked,
                     isPinned: existing.isPinned, timestamp: existing.timestamp, dateLabel
                 };
+                showCustomToast("নোটের তথ্য সফলভাবে আপডেট করা হয়েছে!", "success");
             }
 
             localStorage.setItem('student_vault_notes', JSON.stringify(notesList));
@@ -374,17 +484,21 @@
 
         function triggerEditNoteSetup(noteId) {
             const notesList = JSON.parse(localStorage.getItem('student_vault_notes')) || [];
-            // ইউনিক আইডি (Timestamp) ম্যাচ করে নোট খুঁজে বের করা
             const index = notesList.findIndex(n => n.timestamp === noteId);
             if (index === -1) return;
             
             const note = notesList[index];
 
             if (note.isLocked && !unlockedNotesCache[noteId]) {
-                const success = attemptUnlockNote(noteId);
-                if (!success) return; 
+                attemptUnlockNote(noteId, function() {
+                    proceedToEditForm(note, index);
+                });
+            } else {
+                proceedToEditForm(note, index);
             }
+        }
 
+        function proceedToEditForm(note, index) {
             openNotePopup();
             document.getElementById('noteEditIndex').value = index;
             document.getElementById('formModeTitle').innerText = "Modify Vault Note";
@@ -407,15 +521,19 @@
         }
 
         function deleteVaultNote(noteId) {
-            if (confirm("তুমি কি নিশ্চিতভাবে এই নোটটি ভল্ট থেকে মুছে ফেলতে চাও?")) {
-                const notesList = JSON.parse(localStorage.getItem('student_vault_notes')) || [];
-                const index = notesList.findIndex(n => n.timestamp === noteId);
-                if (index !== -1) {
-                    notesList.splice(index, 1);
-                    localStorage.setItem('student_vault_notes', JSON.stringify(notesList));
-                    renderNotesVaultList();
+            showCustomConfirm("তুমি কি নিশ্চিতভাবে এই নোটটি ভল্ট থেকে মুছে ফেলতে চাও?", function(confirmed) {
+                if (confirmed) {
+                    const notesList = JSON.parse(localStorage.getItem('student_vault_notes')) || [];
+                    const index = notesList.findIndex(n => n.timestamp === noteId);
+                    if (index !== -1) {
+                        notesList.splice(index, 1);
+                        localStorage.setItem('student_vault_notes', JSON.stringify(notesList));
+                        renderNotesVaultList();
+                        showCustomToast("নোটটি ভল্ট থেকে ডিলিট করা হয়েছে।", "success");
+                    }
                 }
-            }
+            });
         }
     </script>
-    
+</body>
+</html>
