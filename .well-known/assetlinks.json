@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.mrangry_sojib.twa",
-        "sha256_cert_fingerprints": ["33:42:E9:14:69:9B:90:9B:49:D7:1D:44:FE:5E:C2:D3:2E:DD:AA:8F:A9:E0:06:B6:CB:15:FF:3D:41:A2:B5:4F"]
-      }
-    }]
