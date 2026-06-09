@@ -1,10 +1,13 @@
 {
-  "name": "StudyBuddy Pro",
-  "short_name": "StudyBuddy",
-  "start_url": "index.html",
+  "name": "Study Buddy",
+  "short_name": "Study Buddy",
+  "description": "Study Buddy is your ultimate offline productivity companion to manage your studies, assignments, and daily learning seamlessly.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#080B11",
   "theme_color": "#0D1520",
+  "orientation": "portrait",
+  "id": "com.mrangry.studybuddy",
   "icons": [
     {
       "src": "icon.png",
