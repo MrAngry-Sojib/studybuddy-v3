@@ -1,10 +1,9 @@
-const CACHE_NAME = 'studybuddy-v5'; // ভার্সন বাড়িয়ে v3 করা হলো যেন সবার ফোনে দ্রুত আপডেট নেয়
+const CACHE_NAME = 'studybuddy-v6'; // ভার্সন ৫ করা হলো যেন নতুন করে ফ্রেশ ক্যাশ নেয়
 
-// স্ক্রিনশট অনুযায়ী তোমার সব ফাইলের নিখুঁত লিস্ট (অ্যাসেট) এখানে লক করা হলো
+// তোমার গিটহাব রিপোজিটরির স্ক্রিনশট অনুযায়ী নিখুঁত ফাইল লিস্ট
 const ASSETS = [
-  '/',
+  './',
   'index.html',
-  'help.html',
   'routine.html',
   'exam.html',
   'notes.html',
@@ -13,46 +12,55 @@ const ASSETS = [
   'budget.html',
   'profile.html',
   'developer.html',
+  'help.html',        // আমাদের নতুন ইউজার গাইডলাইন পেজ
   'manifest.json',
-  '.nojekyll',
-  'icon.png',         // তোমার আসল লোগো ফাইল
-  'profile.jpg'       // তোমার প্রোফাইল ইমেজ ফাইল
+  'icon.png',         // তোমার অ্যাপ লোগো
+  'profile.jpg'       // প্রোফাইল ইমেজ
 ];
 
-// ১. ইনস্টল ইভেন্ট - অ্যাপ ইনস্টল হওয়ার সাথে সাথে সব ফাইল ব্যাকগ্রাউন্ডে ফোনে সেভ হবে
+// ইনস্টল ইভেন্ট - কোনো ফাইল মিসিং থাকলেও যেন ক্র্যাশ না করে সেফটি ইঞ্জিনসহ
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('VaultBuddy Cache Locked Successfully!');
-      return cache.addAll(ASSETS);
+      console.log('StudyBuddy Cache Locking...');
+      // এখানে প্রতিটি ফাইলকে আলাদাভাবে ট্রাই করবে যেন কোনো একটা ভুলের জন্য পুরো অ্যাপ অফলাইন ব্রেক না করে
+      return Promise.all(
+        ASSETS.map(asset => {
+          return cache.add(asset).catch(err => console.log('Asset load skipped or failed: ', asset, err));
+        })
+      );
     })
   );
-  self.skipWaiting(); // নতুন কোডটিকে সাথে সাথে একটিভ করার জন্য ফোর্স করবে
+  self.skipWaiting();
 });
 
-// ২. একটিভেট ইভেন্ট - নতুন কোড পুশ হলে পুরনো v2 বা ভুতুড়ে সব ক্যাশ ডিলিট করে মেমোরি ক্লিন করবে
+// একটিভেট ইভেন্ট - পুরোনো মেমোরি ক্লিনআপ
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
-            console.log('Old Cache Cleared:', key);
             return caches.delete(key);
           }
         })
       );
     })
   );
-  self.clients.claim(); // ইউজার অ্যাপে থাকা অবস্থাতেই ইনস্ট্যান্ট ব্যাকগ্রাউন্ড আপডেট কার্যকর করবে
+  self.clients.claim();
 });
 
-// ৩. ফেচ ইভেন্ট - অফলাইনে ১০০% মাখনের মতো ফাইল লোড করার কোর ইঞ্জিন (Cache-First)
+// ফেচ ইভেন্ট - ১০০% অফলাইন মাখনের মতো লোড করার কোর মোড
 self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(response => {
-      // ফোনে ক্যাশ ফাইল থাকলে অফলাইনে সেটাই ইনস্ট্যান্ট স্ক্রিনে শো করবে, না থাকলে ইন্টারনেট থেকে আনবে
-      return response || fetch(e.request);
+      // যদি ক্যাশে ফাইল থাকে তবে অফলাইনে সেটাই দেখাবে, নয়তো ইন্টারনেট থেকে আনবে
+      return response || fetch(e.request).catch(() => {
+        // যদি একদমই অফলাইন থাকে এবং মেইন পেজ রিকোয়েস্ট হয়
+        if (e.request.mode === 'navigate') {
+          return caches.match('index.html');
+        }
+      });
     })
   );
 });
