@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Buddy Pro - Comprehensive Help Center</title>
+    <style>
+        /* গ্লোবাল প্রিমিয়াম ডার্ক থিম এবং রিসেট */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #05070B;
+            color: #E2E8F0;
+            padding: 25px 20px;
+            max-width: 750px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ব্যাক বাটন ও টপ বার লেআউট */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #0D1520;
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: 1px solid #1E293B;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn {
+            background: #1E293B;
+            color: #38BDF8;
+            border: 1px solid #38BDF8;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #38BDF8;
+            color: #05070B;
+            transform: translateX(-2px);
+        }
+
+        /* হেডার এরিয়া */
+        .header {
+            background: linear-gradient(145deg, #0D1524, #080D18);
+            padding: 30px 20px;
+            border-radius: 16px;
+            border: 1px solid #1E293B;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            color: #FFF;
+            margin-bottom: 8px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .header p {
+            font-size: 13.5px;
+            color: #64748B;
+        }
+
+        /* ম্যানুয়াল লিস্ট কন্টেইনার */
+        .manual-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* একক অ্যাকর্ডিয়ন আইটেম */
+        .accordion-item {
+            background-color: #0D1520;
+            border: 1px solid #1E293B;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ক্লিক করার মেইন বার */
+        .accordion-header {
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            background-color: #0D1520;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background-color: #121B2B;
+        }
+
+        .title-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ডানদিকের তীর চিহ্ন */
+        .arrow {
+            font-size: 12px;
+            color: #64748B;
+            transition: transform 0.3s ease;
+        }
+
+        /* ভেতরকার কন্টেন্ট এরিয়া */
+        .accordion-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #080D14;
+        }
+
+        .content-inner {
+            padding: 22px;
+            font-size: 14px;
+            color: #94A3B8;
+            border-top: 1px solid #1E293B;
+        }
+
+        .feature-desc {
+            margin-bottom: 15px;
+            color: #CBD5E1;
+            font-size: 14.5px;
+        }
+
+        /* গাইড সাবসেকশন */
+        .sub-section {
+            margin-top: 15px;
+            background: #0D1520;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #1E293B;
+        }
+
+        .sub-section h4 {
+            color: #FFF;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* স্টেপ বাই স্টেপ পয়েন্ট গাইড */
+        .steps {
+            padding-left: 20px;
+        }
+
+        .steps li {
+            margin-bottom: 10px;
+            list-style-type: square;
+        }
+
+        .steps strong {
+            color: #38BDF8;
+            font-weight: 600;
+        }
+
+        /* অ্যালার্ট/বিশেষ নিয়ম বক্স */
+        .rule-box {
+            margin-top: 12px;
+            background: rgba(56, 189, 248, 0.06);
+            border-left: 4px solid #38BDF8;
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0;
+            font-size: 13.5px;
+            color: #94A3B8;
+        }
+
+        .rule-box strong {
+            color: #38BDF8;
+        }
+
+        .warning-box {
+            margin-top: 12px;
+            background: rgba(239, 68, 68, 0.06);
+            border-left: 4px solid #EF4444;
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0;
+            font-size: 13.5px;
+            color: #94A3B8;
+        }
+
+        .warning-box strong {
+            color: #EF4444;
+        }
+
+        .success-box {
+            margin-top: 12px;
+            background: rgba(16, 185, 129, 0.06);
+            border-left: 4px solid #10B981;
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0;
+            font-size: 13.5px;
+            color: #94A3B8;
+        }
+
+        .success-box strong {
+            color: #10B981;
+        }
+
+        /* একটিভ ওপেন স্টেটের স্টাইল */
+        .accordion-item.active {
+            border-color: #38BDF8;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.1);
+        }
+
+        .accordion-item.active .arrow {
+            transform: rotate(180deg);
+            color: #38BDF8;
+        }
+
+        /* হোয়াটসঅ্যাপ ফিডব্যাক বাটন */
+        .feedback-zone {
+            margin-top: 35px;
+            text-align: center;
+            background: #0D1520;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #1E293B;
+        }
+
+        .feedback-zone p {
+            font-size: 14px;
+            color: #94A3B8;
+            margin-bottom: 15px;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #25D366;
+            color: #FFF;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+            background-color: #20BA56;
+        }
+
+        /* ফুটার */
+        .footer {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 11.5px;
+            color: #475569;
+            border-top: 1px solid #1E293B;
+            padding-top: 20px;
+        }
+
+        .footer strong {
+            color: #38BDF8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="back-btn" onclick="window.location.href='index.html'">◀ Back</button>
+        <div style="font-size: 14px; color: #64748B; font-weight: 600;">Study Buddy Pro Help Desk</div>
+    </div>
+
+    <div class="header">
+        <h1>📖 Study Buddy Pro - ইউজার গাইড সেন্টার</h1>
+        <p>앱ের প্রতিটি মডিউল নিখুঁতভাবে ব্যবহার করার অফিসিয়াল গাইডলাইন ও নিয়মাবলী</p>
+    </div>
+
+    <div class="manual-list">
+                <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">📅 Live Routine Tracker</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">এই মডিউলটি কোনো সাধারণ রুটিন খাতা নয়। এটি একটি লাইভ অ্যালগরিদম ভিত্তিক ট্র্যাকার যা সপ্তাহের ৭ দিনের প্রতিটি ক্লাস এবং পিরিয়ডকে সেকেন্ডের কাটায় ট্র্যাক করতে সক্ষম।</p>
+                    
+                    <div class="sub-section">
+                        <h4>⚙️ কীভাবে কনফিগার ও ব্যবহার করবে:</h4>
+                        <ul class="steps">
+                            <li><strong>পিরিয়ড টাইমিং লক করা:</strong> প্রথমে রুটিন ড্যাশবোর্ডের নিচে থাকা সেটিংস গিয়ার অপশনে চাপ দাও। সেখানে ১ম পিরিয়ড থেকে শুরু করে প্রতিটি ক্লাসের শুরু এবং শেষের সঠিক সময় (যেমন: সকাল ০৯:০০ থেকে ০৯:৪৫) সেট করে "Save Time" বাটনে ক্লিক করো।</li>
+                            <li><strong>সাবজেক্ট ও ক্লাসরুম ইনপুট:</strong> ড্রপডাউন থেকে নির্দিষ্ট দিন (যেমন: Sunday) এবং পিরিয়ড নম্বর সিলেক্ট করো। এরপর ইনপুট বক্সে সাবজেক্টের নাম ও রুম নম্বর (যেমন: Physics - Room 302) টাইপ করে "Lock & Update Routine" এ ক্লিক করলেই গ্রিডটি আপডেট হয়ে যাবে।</li>
+                        </ul>
+                    </div>
+
+                    <div class="rule-box">
+                        <strong>💡 লাইভ ট্র্যাকিং ম্যাজিক:</strong> যখনই কোনো ক্লাসের সময় হবে, অ্যাপটি ব্যাকগ্রাউন্ডে তোমার ফোনের লোকাল টাইমের সাথে মিলিয়ে সেই নির্দিষ্ট পিরিয়ডের ঘরটিকে একটি উজ্জ্বল নিয়ন বর্ডার দিয়ে ঘিরে ফেলবে এবং স্ক্রিনে <strong>"Live 🔴"</strong> অ্যানিমেশন জ্বেলে রাখবে। ফলে গ্রুপে বা খাতায় রুটিন খোঁজার কোনো ঝামেলাই থাকবে না!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">🎯 Exam Missions & Countdown</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">পরীক্ষার আগের মুহূর্তের মানসিক চাপ এবং সিলেবাস শেষ করার দুশ্চিন্তা দূর করার জন্য এটি তোমার ব্যক্তিগত এক্সাম কন্ট্রোল ড্যাশবোর্ড।</p>
+                    
+                    <div class="sub-section">
+                        <h4>🛠️ ব্যবহার করার পদ্ধতি:</h4>
+                        <ul class="steps">
+                            <li><strong>মিশন ডিপ্লয়মেন্ট:</strong> স্ক্রিনের নিচে থাকা প্লাস (+) বাটনে ক্লিক করো। আসন্ন পরীক্ষার সাবজেক্ট, সিলেবাসের মূল টপিকসমূহ, পরীক্ষার তারিখ এবং সুনির্দিষ্ট সময় ইনপুট দাও। একই সাথে স্লাইডার ব্যবহার করে তোমার বর্তমান প্রিপারেশন লেভেল কত পার্সেন্ট (যেমন: 40%) তা সিলেক্ট করে "Deploy Mission Sheet" করো।</li>
+                            <li><strong>সিলেবাস ট্র্যাকিং:</strong> প্রিপারেশন লেভেলের ওপর ভিত্তি করে প্রতিটি পরীক্ষার কার্ডে লাইভ প্রোগ্রেস বার দেখাবে, যা তোমাকে সিলেবাস দ্রুত শেষ করার পুশ দেবে।</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>🚨 কালার কোডেড কাউন্টডাউন সিস্টেম:</strong> অ্যাপটি স্বয়ংক্রিয়ভাবে পরীক্ষার দিন হিসাব করে কার্ডের ওপর ৩টি ভিন্ন রঙের অ্যালার্ট ব্যাজ দেবে:
+                        <br>• 🔴 <strong>লাল ব্যাজ (🚨):</strong> পরীক্ষা আসতে ৩ দিন বা তার কম সময় বাকি (ক্রিটিক্যাল জোন)।
+                        <br>• 🟡 <strong>হলুদ ব্যাজ (⏳):</strong> পরীক্ষা বাকি ৩ থেকে ৭ দিন (প্রিপারেশন ওয়ার্নিং জোন)।
+                        <br>• 🟢 <strong>সবুজ ব্যাজ:</strong> পরীক্ষার ১ সপ্তাহের বেশি সময় বাকি (সেফ জোন)।
+                    </div>
+
+                    <div class="success-box">
+                        <strong>💎 মিশন কমপ্লিশন ও এক্সপি বোনাস:</strong> পরীক্ষা শেষ হওয়ার পর কার্ডের নিচে থাকা <strong>"Mission Completed"</strong> বাটনে ক্লিক করো। এটি পরীক্ষাটিকে আর্কাইভ বা হিস্টোরিতে পাঠিয়ে দেবে এবং তোমার প্রোফাইলে সাথে সাথে <strong>+50 XP (Experience Points)</strong> বোনাস যোগ করবে যা তোমার স্টুডেন্ট লেভেল আপগ্রেড করতে সাহায্য করবে।
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">🔐 Secure Study Vault</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">ক্লাসের অতি গুরুত্বপূর্ণ লেকচার শিট, পরীক্ষার গোপন সাজেশন, ম্যাথের বিশেষ সূত্র কিংবা কোনো অ্যাসাইনমেন্টের টপিক সম্পূর্ণ ব্যক্তিগতভাবে সেভ রাখার একটি এনক্রিপ্টেড নোটপ্যাড।</p>
+                    
+                    <div class="sub-section">
+                        <h4>📝 নোট রাইٹنگ ও লকিং মেকানিজম:</h4>
+                        <ul class="steps">
+                            <li><strong>নোট তৈরি:</strong> কলম আইকনে ক্লিক করে ক্যাটাগরি, নোটের আকর্ষণীয় শিরোনাম এবং মূল বিষয়বস্তু টাইপ করো।</li>
+                            <li><strong>ক্লাস রোল পাসওয়ার্ড এনক্রিপশন:</strong> তুমি যদি চাও এই সিক্রেট নোটটি তুমি ছাড়া অন্য কোনো ফ্রেন্ড যাতে ভুল করেও দেখতে না পারে, তবে নোট সেভ করার সময় নিচে থাকা <strong>"Lock note with Class Roll password"</strong> বক্সে টিক মার্ক দিয়ে সেভ করো।</li>
+                        </ul>
+                    </div>
+
+                    <div class="rule-box">
+                        <strong>🔑 কীভাবে আনলক করবে?</strong> লক করা নোটে ক্লিক করলে একটি সিকিউর পপ-আপ উইন্ডো আসবে। সেখানে তোমার প্রোফাইলে সেট করা আসল <strong>"Class Roll"</strong> নম্বরটি ইনপুট দিতে হবে। সঠিক রোল দিলে নোটটি আনলক হবে। এছাড়া প্রতিটি নোটের সাইজ দেখে অ্যাপটি অটোমেটিক কত মিনিট পড়তে লাগবে তা হিসাব করে দেখাবে। উপরে থাকা সার্চ বার দিয়ে যেকোনো সময় নোট ইনস্ট্যান্ট খুঁজে বের করা যাবে।
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">⏱️ Focus Timer (Gamified Pomodoro)</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">এটি কোনো সাধারণ ঘড়ি বা অলস স্টপওয়াচ নয়। এটি তৈরি করা হয়েছে বিজ্ঞানসম্মত পোমোডোরো (Pomodoro) টেকনিক এবং গেমিফাইড রিওয়ার্ড মেকানিজমের ওপর ভিত্তি করে, যা তোমার মনোযোগকে সুদৃঢ় করবে।</p>
+                    
+                    <div class="sub-section">
+                        <h4>🎯 স্টপওয়াচ মোড ও রিওয়ার্ডের কঠিন নিয়মাবলী:</h4>
+                        <ul class="steps">
+                            <li><strong>মিনিমাম ৩০ মিনিটের মিশন:</strong> যখনই তুমি পড়ার টেবিলে বসবে, "Start" বাটনে চাপ দিয়ে পড়াশোনা শুরু করবে। তবে মনে রেখো, রিওয়ার্ড বা পয়েন্ট পেতে হলে তোমাকে <strong>মিনিমাম ৩০ মিনিট</strong> একটানা ফোকাসড পড়াশোনা করতে হবে। ৩০ মিনিটের আগে স্টপওয়াচ বন্ধ করলে কোনো রিওয়ার্ড কাউন্ট হবে না।</li>
+                            <li><strong>অটো ব্রেক ও স্কিপ সিস্টেম:</strong> একটানা ৩০ মিনিট পড়ার সেশন কমপ্লিট হওয়ার সাথে সাথে অ্যাপটি একটি অ্যালার্মের মাধ্যমে তোমাকে জানাবে এবং স্ক্রিনে <strong>৫ মিনিটের একটি শর্ট ব্রেক কাউন্টডাউন</strong> শুরু হবে। তুমি চাইলে এই ব্রেকটি "Skip" বাটন চেপে সরাসরি পরবর্তী পড়ার সেশনে চলে যেতে পারো।</li>
+                            <li><strong>অটো-কাউন্ট ফোকাস ইঞ্জিন:</strong> ব্রেক শেষ হওয়ার পর তুমি যদি স্ক্রিনে কোনো রেসপন্স বা ক্লিক না-ও করো, অ্যাপের স্মার্ট ইঞ্জিন ধরে নেবে তুমি এখনো পড়াশোনাতেই মগ্ন আছো এবং এটি স্বয়ংক্রিয়ভাবে তোমার পরবর্তী সেশনের পড়ার সময় গণনা শুরু করে দেবে।</li>
+                        </ul>
+                    </div>
+
+                    <div class="success-box">
+                        <strong>💎 CP (Concentration Points) ও গ্লোবাল বোনাস:</strong> প্রতিটি সফল ৩০ মিনিটের পড়ার সেশন শেষ করার জন্য তোমার প্রোফাইলে <strong>+১০ CP (Concentration Points)</strong> যোগ হবে। এভাবে প্রতিদিন যদি তুমি ৪টি সেশন (টোটাল ২ ঘণ্টা) কমপ্লিট করতে পারো, তবে দৈনিক মাইলস্টোন বোনাস হিসেবে আরও অতিরিক্ত <strong>+৫০ গ্লোবাল XP</strong> বোনাস সরাসরি অ্যাকাউন্টে রিওয়ার্ড দেওয়া হবে!
+                    </div>
+
+                    <div class="warning-box">
+                        <strong>⚠️ প্রতিদিন না পড়লে স্ট্রাইক ও পয়েন্ট কর্তন:</strong> পড়াশোনায় নিয়মিত ধরে রাখার জন্য এতে একটি 'Daily Streak' সিস্টেম আছে। তুমি যদি টানা ২৪ ঘণ্টার মধ্যে মিনিমাম ১টি সেশনও (৩০ মিনিট) ওন করে পড়াশোনা না করো, তবে তোমার কারেন্ট স্ট্রিক ভেঙে যাবে এবং দৈনিক পেনাল্টি হিসেবে জমানো ব্যালেন্স থেকে <strong>-১৫ CP কাটা হবে!</strong> 
+                        <br><br>
+                        <strong>🗓️ কোন কোন দিন পয়েন্ট কাটা হবে না?</strong> সরকারি ছুটির দিন, শুক্রবার (Friday) এবং তোমার "Exam Missions" ড্যাশবোর্ডে যদি কোনো একটি মিশন সফলভাবে কমপ্লিট বা পরীক্ষা শেষ হওয়ার ইতিহাস থাকে, তবে তার পরবর্তী ২ দিন অ্যাপটি "Rest Mode"-এ থাকবে। ঐ দিনগুলোতে পড়াশোনা না করলেও তোমার কোনো পয়েন্ট বা স্ট্রিক কাটা হবে না!
+                    </div>
+                </div>
+            </div>
+        </div>
+               <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">📝 Daily Tasks & Checklists</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">প্রতিদিনের ছোট ছোট লক্ষ্য অর্জন এবং সারাদিনের জটলা বা পেন্ডিং কাজের বোঝা কমাতে এই স্মার্ট টু-ডু (To-Do) লিস্ট মডিউল।</p>
+                    
+                    <div class="sub-section">
+                        <h4>🚀 কাজের গতি বাড়ানোর নিয়ম:</h4>
+                        <ul class="steps">
+                            <li><strong>টাস্ক ইমপোর্টেশন:</strong> সকালে ঘুম থেকে উঠে বা পড়তে বসার আগে ইনপুট বক্সে তোমার আজকের করণীয় কাজগুলো একটি একটি করে লিখে লিস্টে যুক্ত করো।</li>
+                            <li><strong>মানসিক বুস্ট ও স্ট্রাইক-থ্রু:</strong> যখনই কোনো একটি কাজ সফলভাবে শেষ হবে, বামদিকের গোল চেকবক্সে একটি আলতো টিক চিহ্ন দাও। সাথে সাথে সম্পূর্ণ লেখাটি মাঝখান থেকে কেটে (Strike-through) যাবে। কাজ সম্পন্ন হতে দেখলে ব্রেইন ডোপামিন রিলিজ করে, যা তোমাকে পরবর্তী কাজগুলো আরও দ্রুত শেষ করার ১০০% এনার্জি ও ফোকাস এনে দেবে!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion-item">
+            <div class="accordion-header">
+                <span class="title-text">💰 Pocket Money Budget Tracker</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="accordion-body">
+                <div class="content-inner">
+                    <p class="feature-desc">স্টুডেন্ট লাইফের বা মেস লাইফের সবচেয়ে বড় প্যারা হলো পকেট মানির হিসাব রাখা। মাস শেষে টাকা কোথায় উড়ে যায় তা ট্র্যাক করতেই এই পার্সোনাল ফিন্যান্স ম্যানেজার।</p>
+                    
+                    <div class="sub-section">
+                        <h4>💵 ক্যাশ ও কস্ট ডিস্ট্রিবিউশন গাইড:</h4>
+                        <ul class="steps">
+                            <li><strong>মাস্টার বাজেট সেটআপ:</strong> মাসের শুরুতে বাড়ি থেকে পাওয়া পকেট মানি বা টিউশনির মোট টাকা মাস্টার বাজেট ফিল্ডে ইনপুট দিয়ে ড্যাশবোর্ড সচল করো।</li>
+                            <li><strong>খরচের হিসাব নিকাশ:</strong> সারাদিনে যেখানেই খরচ হোক—খাতা কেনা, নাশতা করা, কিংবা রিকশা ভাড়া—খরচের বিবরণ ও টাকার পরিমাণ ইনপুট দিয়ে মাইনাস বাটনে চাপ দাও। অ্যাপটি সাথে সাথে হিসাব কষে তোমার মোট টাকা থেকে ব্যালেন্স কমিয়ে লাইভ আপডেট ক্যাশ মেমরিতে স্টোর করে রাখবে। মাস শেষে তুমি এক ক্লিকেই দেখতে পারবে তোমার ঠিক কত টাকা অবশিষ্ট আছে।</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <div class="feedback-zone">
+        <p>অ্যাপে কোনো সমস্যা হচ্ছে? অথবা নতুন কোনো ফিচারের আইডিয়া বা সাজেশন দিতে চাও?</p>
+        <a href="https://wa.me/8801700000000" target="_blank" class="whatsapp-btn">
+            💬 সরাসরি WhatsApp-এ মেসেজ বা ফিডব্যাক দাও
+        </a>
+    </div>
+
+    <div class="footer">
+        © 2026 Study Buddy Pro. All Rights Reserved.<br>
+        Designed & Developed with 💙 by <strong>Sojib Islam</strong>
+    </div>
+
+    <script>
+        const headers = document.querySelectorAll('.accordion-header');
+        
+        headers.forEach(header => {
+            header.addEventListener('click', function() {
+                const item = this.parentElement;
+                const body = item.querySelector('.accordion-body');
+                
+                // অন্য কোনো অপশন খোলা থাকলে তা অটোমেটিক বন্ধ করবে
+                document.querySelectorAll('.accordion-item').forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                        otherItem.querySelector('.accordion-body').style.maxHeight = null;
+                    }
+                });
+                
+                // বর্তমান আইটেমটি টগল করা
+                item.classList.toggle('active');
+                if (item.classList.contains('active')) {
+                    body.style.maxHeight = body.scrollHeight + "px";
+                } else {
+                    body.style.maxHeight = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+ 
