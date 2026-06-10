@@ -562,27 +562,36 @@
         };
     </script>
     <script>
-  // সার্ভিস ওয়ার্কার রেজিস্ট্রেশন এবং অটো-আপডেট কোড
-if ('serviceWorker' in navigator) {
+  if ('serviceWorker' in navigator) {
+  // ১. পেজ লোড হওয়ার সাথে সাথে পুরোনো ক্যাশ ক্লিয়ার করার রিকোয়েস্ট
+  caches.keys().then(function(cacheNames) {
+    cacheNames.forEach(function(cacheName) {
+      if (cacheName !== 'studybuddy-v6') {
+        caches.delete(cacheName);
+      }
+    });
+  });
+
+  // ২. ফ্রেশ সার্ভিস ওয়ার্কার রেজিস্টার করা
   navigator.serviceWorker.register('service-worker.js')
     .then(reg => {
-      console.log('Service Worker Registered!');
+      console.log('Study Buddy SW Registered!');
 
-      // যদি ব্যাকগ্রাউন্ডে নতুন কোনো আপডেট (যেমন v4) এসে অপেক্ষা করে
+      // ব্যাকগ্রাউন্ডে v6 বা নতুন আপডেট চেক করার অ্যালগরিদম
       reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // নতুন আপডেট রেডি! ইউজারকে কোনো পপ-আপ না দেখিয়ে অ্যাপটি অটো-রিলোড হবে
-            console.log('New update available! Auto reloading...');
+        const installingWorker = reg.installing;
+        installingWorker.addEventListener('statechange', () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // নতুন আপডেট সম্পূর্ণ ডাউনলোড হলে অ্যাপ অটো-রিফ্রেশ হবে
+            console.log('New update installed. Reloading...');
             window.location.reload();
           }
         });
       });
     })
-    .catch(err => console.log('Service Worker Error:', err));
+    .catch(err => console.log('SW Registration Failed:', err));
 
-  // কন্ট্রোলার চেঞ্জ হলে পেজ রিলোড করার সেফটি মেকানিজম
+  // ৩. নতুন সার্ভিস ওয়ার্কার একটিভ হওয়া মাত্রই স্ক্রিন রিফ্রেশ করার সেফটি মেকানিজম
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
@@ -590,7 +599,7 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });
-}
+  }
         
     </script>
     
