@@ -1,6 +1,6 @@
-const CACHE_NAME = 'studybuddy-v6'; // ভার্সন ৫ করা হলো যেন নতুন করে ফ্রেশ ক্যাশ নেয়
+const CACHE_NAME = 'studybuddy-v6'; // অফিশিয়াল স্থায়ী ভার্সন v6
 
-// তোমার গিটহাব রিপোজিটরির স্ক্রিনশট অনুযায়ী নিখুঁত ফাইল লিস্ট
+// স্ক্রিনশট অনুযায়ী তোমার গিটহাবের সব ফাইলের নিখুঁত অ্যারে লিস্ট
 const ASSETS = [
   './',
   'index.html',
@@ -12,51 +12,56 @@ const ASSETS = [
   'budget.html',
   'profile.html',
   'developer.html',
-  'help.html',        // আমাদের নতুন ইউজার গাইডলাইন পেজ
+  'help.html',
   'manifest.json',
-  'icon.png',         // তোমার অ্যাপ লোগো
-  'profile.jpg'       // প্রোফাইল ইমেজ
+  'icon.png',
+  'profile.jpg',
+  '.nojekyll'
 ];
 
-// ইনস্টল ইভেন্ট - কোনো ফাইল মিসিং থাকলেও যেন ক্র্যাশ না করে সেফটি ইঞ্জিনসহ
+// ইনস্টল ইভেন্ট - কোনো ফাইল গিটহাবে মিসিং থাকলেও যেন অ্যাপ ক্র্যাশ না করে
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('StudyBuddy Cache Locking...');
-      // এখানে প্রতিটি ফাইলকে আলাদাভাবে ট্রাই করবে যেন কোনো একটা ভুলের জন্য পুরো অ্যাপ অফলাইন ব্রেক না করে
+      console.log('System Caching Online...');
       return Promise.all(
         ASSETS.map(asset => {
-          return cache.add(asset).catch(err => console.log('Asset load skipped or failed: ', asset, err));
+          return cache.add(asset).catch(err => console.log('Skipped Asset:', asset));
         })
       );
     })
   );
-  self.skipWaiting();
+  self.skipWaiting(); // নতুন সার্ভিস ওয়ার্কারকে লাইনে দাঁড়িয়ে না রেখে সাথে সাথে পুশ করবে
 });
-
-// একটিভেট ইভেন্ট - পুরোনো মেমোরি ক্লিনআপ
+// একটিভেট ইভেন্ট - পুরোনো মেমোরির জটলা মেমোরি থেকে একদম রুট লেভেলে মুছে দেবে
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
         keys.map(key => {
           if (key !== CACHE_NAME) {
+            console.log('Old Cache Vaporized:', key);
             return caches.delete(key);
           }
         })
       );
     })
   );
-  self.clients.claim();
+  self.clients.claim(); // অ্যাপ ওপেন থাকা অবস্থাতেই নতুন v6 ক্যাশ কন্ট্রোল নিয়ে নেবে
 });
 
-// ফেচ ইভেন্ট - ১০০% অফলাইন মাখনের মতো লোড করার কোর মোড
+// ফেচ ইভেন্ট - অফলাইনে ১০০% রকেট স্পিডে ফাইল রান করার ইঞ্জিন (Cache-First)
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(response => {
-      // যদি ক্যাশে ফাইল থাকে তবে অফলাইনে সেটাই দেখাবে, নয়তো ইন্টারনেট থেকে আনবে
-      return response || fetch(e.request).catch(() => {
-        // যদি একদমই অফলাইন থাকে এবং মেইন পেজ রিকোয়েস্ট হয়
+    caches.match(e.request).then(cachedResponse => {
+      // ফোনে ক্যাশ ফাইল সেভ থাকলে অফলাইনে সেটাই ইনস্ট্যান্ট দেখাবে
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // ফোনে না থাকলে ইন্টারনেট থেকে নিয়ে আসবে
+      return fetch(e.request).catch(() => {
+        // যদি ইউজার পুরোপুরি অফলাইন থাকে এবং মেইন পেজে নেভিগেট করতে চায়
         if (e.request.mode === 'navigate') {
           return caches.match('index.html');
         }
